@@ -11,6 +11,8 @@
 | Level 2 | 일반 PR 작업 | 여러 파일, 기능, 리팩토링, API/폼/상태 변경 | plan.md + task.md + TDD |
 | Level 3 | 고위험/불확실 작업 | 인증/권한/대규모 리팩토링/새 기술/아키텍처 변경 | plan.md + seed + task.md + drift/evaluation |
 
+Level 3의 seed는 `.agents/templates/seed.yaml`을 기준으로 작성한다. Level 2에서는 선택 사항이다.
+
 ## 점수표
 
 각 항목을 0~2점으로 평가한다.

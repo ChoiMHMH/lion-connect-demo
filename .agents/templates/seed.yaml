@@ -1,0 +1,33 @@
+# Seed Template
+#
+# 사용 Level:
+# - Level 2: 선택 사항. 방향 재해석 위험이 있으면 사용.
+# - Level 3: 필수. 구현 중 임의 수정 금지.
+
+goal: ""
+risk_level: "Level 3"
+
+constraints:
+  - ""
+
+acceptance_criteria:
+  - ""
+
+non_goals:
+  - ""
+
+mechanical_gates:
+  - "npm run type-check"
+  - "npm run lint"
+  - "npm test"
+
+drift_triggers:
+  - "계획 외 파일/도메인 수정"
+  - "acceptance criteria 재해석"
+  - "테스트 전략 변경"
+  - "새 dependency 추가"
+
+approval_required_when:
+  - "drift score가 임계값 이상"
+  - "seed의 goal/constraints/acceptance_criteria 변경 필요"
+  - "non_goals에 포함된 작업이 필요해짐"

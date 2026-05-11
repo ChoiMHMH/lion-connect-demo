@@ -15,6 +15,7 @@
 - Level 1: `.agents/templates/mini-plan.md`
 - Level 2 이상 plan: `.agents/templates/plan.md`
 - Level 2 이상 task: `.agents/templates/task.md`
+- Level 3 seed: `.agents/templates/seed.yaml`
 
 ## 0단계 — Intake / 명확도 확인
 
@@ -112,7 +113,8 @@ Level 3은 추가로 `ambiguity score`를 기록한다.
 - `plan.md`와 `task.md`가 모두 있다.
 - 새 기능/리팩토링은 TDD 순서를 따른다.
 - Level 2 작업은 PR ready 전 `.agents/evaluation.md`의 Stage 1/2를 통과해야 한다.
-- seed는 선택 사항이다. 작업 중 방향 재해석 가능성이 크면 Level 3으로 승격한다.
+- seed는 선택 사항이다. 필요하면 `.agents/templates/seed.yaml`을 사용한다.
+- 작업 중 방향 재해석 가능성이 크면 Level 3으로 승격한다.
 
 ## Level 3 — Contract Plan
 
@@ -128,7 +130,7 @@ Level 3은 추가로 `ambiguity score`를 기록한다.
 추가 규칙:
 
 - 필요 시 `ooo interview` 또는 공식 문서/웹 조사를 사용해 요구사항을 명확히 한다.
-- seed에는 `goal`, `constraints`, `acceptance_criteria`, `non_goals`, `mechanical_gates`를 고정한다.
+- seed에는 `goal`, `risk_level`, `constraints`, `acceptance_criteria`, `non_goals`, `mechanical_gates`, `drift_triggers`, `approval_required_when`을 고정한다.
 - seed는 구현 중 임의 수정하지 않는다. 변경이 필요하면 사용자 승인 후 plan/task를 갱신한다.
 - 구현 중 `.agents/drift.md` 기준 drift가 임계값을 넘으면 작업을 멈추고 사용자 승인을 받는다.
 - PR ready 전 `.agents/evaluation.md`의 Stage 1/2/3를 수행한다.
