@@ -8,14 +8,18 @@
 - 계획 수립: `.agents/planning.md`
 - 테스트 작성: `.agents/testing.md`
 - 이슈/브랜치/PR: `.agents/workflow.md`
+- 완료 평가: `.agents/evaluation.md`
+- drift 체크: `.agents/drift.md`
+- 막힘 대응: `.agents/unstuck.md`
+- 회고/규칙 승격: `.agents/retrospective.md`
 - 커밋 규칙: `.agents/commit.md`
 - 프로젝트 컨벤션: `.agents/conventions.md`
 
 ## 절대 금지
 
 - `main` 브랜치 직접 커밋·push
-- 계획 1단계(plan.md) 합의 전 파일 수정
-- 계획 2단계(task 분할) 합의 전 구현 착수
+- 해당 Level의 planning 기록·승인 전 파일 수정
+- task 분할이 필요한 Level에서 task 합의 전 구현 착수
 - 테스트 없이 새 기능·리팩토링 착수
 - `--no-verify` 로 훅 우회
 
@@ -26,8 +30,9 @@
 3. 사용자 승인 → `.agents/workflow.md` 로 이슈·브랜치·draft PR 생성
 4. task 분할이 필요한 Level이면 task.md 작성 → 사용자 승인
 5. task 1개 = 커밋 1개 (TDD: 실패 테스트 → green → refactor)
-6. 모든 task 완료 + CI 녹색 → `gh pr ready`
-7. 사용자가 머지
+6. Level에 맞춰 `.agents/evaluation.md` / `.agents/drift.md` 확인
+7. 모든 task 완료 + CI 녹색 → `gh pr ready`
+8. 사용자가 머지
 
 ## codex / claude 역할 구분
 
