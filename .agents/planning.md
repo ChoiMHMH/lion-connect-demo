@@ -141,6 +141,13 @@ Level 3은 추가로 `ambiguity score`를 기록한다.
 - seed와 task가 서로 모순되지 않는다.
 - adversarial review에서 남은 리스크가 PR 본문에 기록된다.
 
+## 완료 전 평가
+
+- Level 0/1은 기록한 검증을 수행한다.
+- Level 2는 `.agents/evaluation.md`의 Stage 1/2를 수행한다.
+- Level 3은 `.agents/drift.md`와 `.agents/evaluation.md`의 Stage 1/2/3를 수행한다.
+- 검증을 생략한 항목은 이유를 PR 본문이나 작업 기록에 남긴다.
+
 ## 금지
 
 - Level 분류 없이 planning으로 바로 들어가기

@@ -60,6 +60,8 @@ gh pr edit <pr-num> --body "<updated>"
 
 ## 단계 5. 모든 task 완료 + CI 녹색 — Ready 해제
 
+Ready 해제 전 `.agents/evaluation.md` 기준으로 필요한 stage를 확인한다.
+
 ```bash
 gh pr ready <pr-num>
 ```
