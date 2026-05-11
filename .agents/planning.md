@@ -9,6 +9,13 @@
 - 새 기능, 리팩토링, API/폼/상태 변경은 테스트 전략 없이 시작하지 않는다.
 - 기록은 작업을 느리게 하기 위한 문서가 아니라 AI의 가정, 대안, 검증 기준을 고정하기 위한 최소 계약이다.
 
+## 템플릿
+
+- Level 0: `.agents/templates/mini-record.md`
+- Level 1: `.agents/templates/mini-plan.md`
+- Level 2 이상 plan: `.agents/templates/plan.md`
+- Level 2 이상 task: `.agents/templates/task.md`
+
 ## 0단계 — Intake / 명확도 확인
 
 Level 1 이상은 planning 전에 아래를 확인한다.
