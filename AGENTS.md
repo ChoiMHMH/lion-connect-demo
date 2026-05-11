@@ -4,6 +4,7 @@
 
 ## 작업 유형별 상세 문서
 
+- 작업 분류: `.agents/routing.md`
 - 계획 수립: `.agents/planning.md`
 - 테스트 작성: `.agents/testing.md`
 - 이슈/브랜치/PR: `.agents/workflow.md`
@@ -20,12 +21,13 @@
 
 ## 기본 작업 흐름
 
-1. 요청 수신 → `.agents/planning.md` 의 1단계 프로토콜 수행
-2. 사용자 승인 → `.agents/workflow.md` 로 이슈·브랜치·draft PR 생성
-3. 2단계 task 분할 → 사용자 승인
-4. task 1개 = 커밋 1개 (TDD: 실패 테스트 → green → refactor)
-5. 모든 task 완료 + CI 녹색 → `gh pr ready`
-6. 사용자가 머지
+1. 요청 수신 → `.agents/routing.md` 기준으로 Level 0~3 분류
+2. Level에 맞춰 `.agents/planning.md` 프로토콜 수행
+3. 사용자 승인 → `.agents/workflow.md` 로 이슈·브랜치·draft PR 생성
+4. task 분할이 필요한 Level이면 task.md 작성 → 사용자 승인
+5. task 1개 = 커밋 1개 (TDD: 실패 테스트 → green → refactor)
+6. 모든 task 완료 + CI 녹색 → `gh pr ready`
+7. 사용자가 머지
 
 ## codex / claude 역할 구분
 
