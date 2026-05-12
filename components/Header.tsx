@@ -7,6 +7,7 @@ import { useNavigation, NavLink } from "@/hooks/common/useNavigation";
 import { useAuthStore } from "@/store/authStore";
 import { UserRole, RoleBasedItem, filterByRole } from "@/utils/rbac";
 import { useLogout } from "@/hooks/auth/useLogout";
+import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 
 /**
  * 네비게이션 링크 타입 (역할 기반 접근 제어 적용)
@@ -137,12 +138,9 @@ export default function Header() {
             </>
           ) : (
             /* Login Button - SSR과 비로그인 상태 모두 동일 */
-            <Link
-              href="/login"
-              className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity"
-            >
+            <DemoAuthCtaButton className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity cursor-pointer">
               로그인/회원가입
-            </Link>
+            </DemoAuthCtaButton>
           )}
         </div>
       </div>

@@ -75,8 +75,20 @@ describe("DemoGuideProvider", () => {
     await userEvent.click(screen.getByRole("button", { name: "서버 종료 모달 열기" }));
 
     expect(screen.getByText("서버 종료 안내")).toBeVisible();
-    expect(
-      screen.getByText(/실제 로그인\/회원가입 서버는 더 이상 운영하지 않습니다/)
-    ).toBeVisible();
+    expect(screen.getByText(/실제 로그인은 현재 제공되지 않습니다/)).toBeVisible();
+  });
+
+  it("Demo 안내 고정 버튼으로 포트폴리오 데모 안내를 다시 열 수 있다", async () => {
+    window.history.pushState({}, "", "/dashboard");
+
+    render(
+      <DemoGuideProvider>
+        <div>dashboard</div>
+      </DemoGuideProvider>
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "포트폴리오 데모 안내 열기" }));
+
+    expect(screen.getByText("포트폴리오 데모 안내")).toBeVisible();
   });
 });

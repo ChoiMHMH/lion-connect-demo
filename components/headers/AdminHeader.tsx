@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
+import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 
 /**
  * 관리자 페이지용 헤더
@@ -15,7 +15,6 @@ export default function AdminHeader() {
   const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
-  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -83,12 +82,9 @@ export default function AdminHeader() {
               </button>
             </>
           ) : (
-            <Link
-              href={`/login?returnTo=${encodeURIComponent(pathname || "/admin")}`}
-              className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity"
-            >
+            <DemoAuthCtaButton className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity cursor-pointer">
               로그인/회원가입
-            </Link>
+            </DemoAuthCtaButton>
           )}
         </div>
       </div>

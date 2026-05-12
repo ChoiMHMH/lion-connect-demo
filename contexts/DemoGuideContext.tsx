@@ -34,8 +34,8 @@ const DEMO_GUIDE_COPY: Record<DemoGuideModalType, DemoGuideCopy> = {
   serverClosed: {
     title: "서버 종료 안내",
     description:
-      "실제 로그인/회원가입 서버는 더 이상 운영하지 않습니다.\n포트폴리오 검토는 데모 허브에서 역할을 선택해 진행해주세요.",
-    primaryLabel: "데모 안내 보기",
+      "실제 로그인은 현재 제공되지 않습니다.\n회원가입과 운영 인증 서버도 종료되어 포트폴리오 검토는 데모 허브에서 역할을 선택해 진행해주세요.",
+    primaryLabel: "데모 페이지로 이동",
     secondaryLabel: "닫기",
   },
 };
@@ -81,12 +81,27 @@ export function DemoGuideProvider({ children }: { children: React.ReactNode }) {
   return (
     <DemoGuideContext.Provider value={value}>
       {children}
+      <DemoGuideFloatingButton onClick={openPortfolioGuide} />
       <DemoGuideModal
         modalType={modalType}
         onClose={closeGuide}
         onPrimaryAction={handlePrimaryAction}
       />
     </DemoGuideContext.Provider>
+  );
+}
+
+function DemoGuideFloatingButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="fixed left-4 z-40 h-10 rounded-full border border-orange-200 bg-white px-4 text-sm font-semibold text-brand-06 shadow-lg transition-colors hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-05 sm:left-6"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+      aria-label="포트폴리오 데모 안내 열기"
+    >
+      Demo 안내
+    </button>
   );
 }
 

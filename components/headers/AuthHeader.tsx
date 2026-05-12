@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 
 /**
  * 인증(로그인/회원가입) 페이지용 헤더 내부 컴포넌트
@@ -34,12 +35,9 @@ function AuthHeaderContent() {
 
         {/* Right Section: 로그인 버튼 */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2">
-          <Link
-            href={`/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`}
-            className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity"
-          >
+          <DemoAuthCtaButton className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity cursor-pointer">
             로그인/회원가입
-          </Link>
+          </DemoAuthCtaButton>
         </div>
       </div>
     </header>
@@ -53,11 +51,13 @@ function AuthHeaderContent() {
  */
 export default function AuthHeader() {
   return (
-    <Suspense fallback={
-      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-bg-primary border-b border-border-accent">
-        <div className="w-[1440px] h-20 mx-auto px-8" />
-      </header>
-    }>
+    <Suspense
+      fallback={
+        <header className="fixed top-0 left-0 right-0 z-50 w-full bg-bg-primary border-b border-border-accent">
+          <div className="w-[1440px] h-20 mx-auto px-8" />
+        </header>
+      }
+    >
       <AuthHeaderContent />
     </Suspense>
   );
