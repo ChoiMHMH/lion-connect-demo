@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchPublicJobPosting } from "@/lib/api/jobPostings";
+import { fetchPublicJobPostingServer } from "@/lib/api/serverJobPostings";
 import { generateJobPostingMetadata } from "@/lib/seo/generateMetadata";
 import { generateJobPostingSchema } from "@/lib/seo/generateJobPostingSchema";
 import JobBoardDetailClient from "./_components/JobBoardDetailClient";
@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { jobId } = await params;
 
   try {
-    const job = await fetchPublicJobPosting(jobId);
+    const job = await fetchPublicJobPostingServer(jobId);
     return generateJobPostingMetadata(job);
   } catch {
     return {
@@ -33,7 +33,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ jobI
 
   let job;
   try {
-    job = await fetchPublicJobPosting(jobId);
+    job = await fetchPublicJobPostingServer(jobId);
   } catch {
     notFound();
   }

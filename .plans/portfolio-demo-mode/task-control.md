@@ -12,4 +12,4 @@
 - [x] T08 - Resume mock API flow
 - [x] T09 - Role page mock coverage
 - [x] T10 - Docs, env, assets policy
-- [ ] T11 - Verification and evaluation
+- [x] T11 - Verification and evaluation
