@@ -7,6 +7,8 @@ import { useNavigation, NavLink } from "@/hooks/common/useNavigation";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
 import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
+import DemoHeader from "@/components/headers/DemoHeader";
+import { getDemoRoleByUser } from "@/constants/demoAuth";
 
 /**
  * 기업용 헤더 컴포넌트
@@ -17,6 +19,7 @@ export default function CompanyHeader() {
   const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
+  const demoRole = getDemoRoleByUser(user);
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +41,10 @@ export default function CompanyHeader() {
   ];
 
   const { navRefs, handleNavClick, isLinkActive } = useNavigation(navLinks);
+
+  if (demoRole) {
+    return <DemoHeader currentRole={demoRole} />;
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-bg-primary border-b border-border-accent">
