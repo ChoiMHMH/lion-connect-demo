@@ -1,0 +1,54 @@
+goal: "운영 서버가 종료된 LionConnect 프론트엔드를 포트폴리오 검토용 데모 모드로 복구한다. 실제 인증/운영 API 코드는 보존하면서, 랜딩 안내, 데모 인증, 역할별 데모 네비게이션, Next.js Route Handler Mock API, 이력서 저장 플로우, API 호출 로그, README 안내를 통해 서버 없이 핵심 화면 흐름을 검토 가능하게 만든다."
+risk_level: "Level 3"
+
+constraints:
+  - "기존 실제 인증/운영 API 로직은 삭제하지 않고 demo mode를 추가하는 방식으로 구현한다."
+  - "로그인/회원가입/시작하기 CTA는 실제 입력 화면이나 인증 요청으로 보내지 않고 서버 종료 안내 모달 또는 /demo로 유도한다."
+  - "Mock 데이터를 컴포넌트에 직접 import하지 않는다. Page/Component -> hook/query/mutation -> domain API -> apiClient/serverApiClient -> endpoint constants -> /api/demo Route Handler 흐름을 유지한다."
+  - "외부 DB, Firebase, Supabase, 실제 서버 저장소를 사용하지 않는다. 필요한 데모 상태는 localStorage 또는 메모리 상태만 사용한다."
+  - "민감정보, 실제 사용자 데이터, 실제 토큰, 실제 운영 서버 환경변수는 추가하지 않는다."
+  - "외부 사람 이미지, 실제 기업 로고, 출처 불명 이미지를 임의로 추가하지 않는다. 필요한 이미지는 placeholder 또는 initials/icon avatar로 처리하고 README에 권장 경로/사이즈를 남긴다."
+  - "헤더 색상은 역할별로 바꾸지 않고 일관된 스타일을 유지한다. 역할 구분은 하위 메뉴 확장과 active underline 중심으로 표현한다."
+  - "변경 범위가 커지면 랜딩 안내 모달, Demo 안내 버튼, /demo 페이지, 데모 헤더 네비게이션, 인재 이력서 데모 플로우를 우선 완성한다."
+
+acceptance_criteria:
+  - "랜딩 첫 진입 시 한 세션에 한 번 포트폴리오 데모 안내 모달이 표시되고, 모든 페이지 좌측 하단에서 Demo 안내를 다시 열 수 있다."
+  - "로그인/회원가입/주요 CTA 클릭 시 실제 인증 요청 없이 서버 종료 안내 모달 또는 /demo 이동만 발생한다."
+  - "헤더는 demo mode에서 LionConnect Demo로 표시되고, 현재 역할에 맞는 하위 메뉴를 확장하며, pathname 기반 active 스타일을 명확히 표시한다."
+  - "인재/기업/관리자 데모 진입 시 middleware와 클라이언트 상태가 demo 전용 인증값을 사용해 기존 보호 라우트에 접근할 수 있다."
+  - "/demo 및 가능하면 /demo/dev-notes에서 운영 종료, Mock API, 저장 정책, API 계층, 이미지 placeholder 정책, 핵심 데모 링크를 설명한다."
+  - "핵심 페이지와 이력서 작성/수정 플로우는 기존 API 계층을 통과해 /api/demo Route Handler에서 mock response를 받는다."
+  - "이력서 기본정보, 학력, 경력 등 핵심 섹션 저장 시 POST/PUT/PATCH 흐름과 마지막 profile status 전환이 데모 API 로그와 UI에서 확인된다."
+  - "API 호출 로그 패널은 demo mode에서만 표시되며 운영 모드 동작에 영향을 주지 않는다."
+  - "README 상단에 포트폴리오 데모 모드, 서버 종료, 저장 정책, 이미지 placeholder 목록, 검증 방법이 정리된다."
+  - "package.json 기준으로 lint, type-check, test, build를 시도하고 결과 또는 기존 범위 밖 실패 사유를 기록한다."
+
+non_goals:
+  - "실제 운영 서버 복구 또는 실서비스 인증 재개"
+  - "모든 88개 이상 API의 완전한 mock coverage를 1차 목표로 삼는 것"
+  - "외부 DB/스토리지/인증 서비스 도입"
+  - "새 이미지/실제 기업 로고/실제 인물 사진 추가"
+  - "기존 로그인/회원가입 페이지와 실제 API 코드를 삭제하거나 재작성하는 것"
+  - "헤더를 역할별 색상 테마로 분리하는 것"
+
+mechanical_gates:
+  - "npm run lint"
+  - "npm run type-check"
+  - "npm run test"
+  - "npm run build"
+
+drift_triggers:
+  - "계획에 없는 인증/권한/라우팅 정책 변경"
+  - "Mock 데이터가 컴포넌트에 직접 import되는 구조로 변경"
+  - "외부 저장소나 새 dependency 도입 필요"
+  - "기존 실제 인증/API 로직 삭제 필요"
+  - "사용자가 지정한 우선순위 밖의 대규모 mock coverage 확장"
+  - "헤더 색상/역할 표현 정책 변경"
+  - "테스트 전략 또는 검증 게이트 변경"
+
+approval_required_when:
+  - "drift score가 임계값 이상"
+  - "seed의 goal/constraints/acceptance_criteria 변경 필요"
+  - "non_goals에 포함된 작업이 필요해짐"
+  - "데모 구현을 위해 새 dependency 또는 외부 서비스가 필요해짐"
+  - "기존 인증/미들웨어/API 계약을 삭제하거나 큰 폭으로 재작성해야 함"
