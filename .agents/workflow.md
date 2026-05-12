@@ -34,20 +34,16 @@ gh pr create --draft \
   --body "$(cat <<'EOF'
 Closes #<issue-num>
 
-## 작업 범위
-<task 체크리스트 — task.md 기반>
-- [ ] task 1
-- [ ] task 2
+## 요약
+<무엇을 왜 바꿨는지 1-3줄>
 
-## 테스트
-<추가/수정된 테스트>
+## 변경 사항
+<리뷰어가 알아야 할 변경만 간단히 작성>
+- 변경 내용:
 
-## 수치 변화 (해당 시)
-| 항목 | before | after |
-|---|---|---|
-
-## 리스크·롤백
-<리스크 1–2줄 + 롤백 방법>
+## 검증
+<실행한 테스트, 타입체크, 린트, 빌드, rg 계약 검증 명령>
+- [ ] npm run type-check
 EOF
 )"
 ```
@@ -58,7 +54,16 @@ EOF
 gh pr edit <pr-num> --body "<updated>"
 ```
 
+PR 본문 작성 규칙:
+
+- `변경 사항`에는 리뷰어가 알아야 할 변경만 적는다.
+- `검증`에는 실제 실행한 명령만 적는다.
+- `T1: rg 계약 체크`처럼 task와 검증이 섞인 메모는 쓰지 않는다.
+- 리스크, 롤백, 스크린샷, 수치 변화는 필요한 PR에만 별도 섹션으로 추가한다.
+
 ## 단계 5. 모든 task 완료 + CI 녹색 — Ready 해제
+
+Ready 해제 전 `.agents/evaluation.md` 기준으로 필요한 stage를 확인한다. Level 3 작업은 `.agents/drift.md` 결과와 adversarial review 결과도 PR 본문에 남긴다.
 
 ```bash
 gh pr ready <pr-num>

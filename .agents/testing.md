@@ -37,5 +37,6 @@
 ## 테스트 함정 (경험 누적)
 
 > 실제로 겪은 문제만 기록. 카테고리(fetch / zustand / RHF 등)가 분화되면 별도 파일로 분리.
+> 작업 중 새 실패 패턴을 발견하면 `.agents/retrospective.md` 기준으로 승격 여부를 판단한다.
 
 - **URL substring 매칭은 경계 명시**: `url.includes("/a")` 는 `"/api/a"`, `"/api/b"` 에 모두 걸린다 (base URL `/api` 안에 `/a` 포함). 고유 경로명(`/route-a`) · `endsWith` · 정규식 경계 중 택일.
