@@ -11,5 +11,5 @@
 - [x] T07 - Demo API base and log panel
 - [x] T08 - Resume mock API flow
 - [x] T09 - Role page mock coverage
-- [ ] T10 - Docs, env, assets policy
+- [x] T10 - Docs, env, assets policy
 - [ ] T11 - Verification and evaluation
