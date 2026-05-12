@@ -39,6 +39,25 @@ import {
   updateDemoProfile,
   upsertDemoProfileLinks,
 } from "@/lib/demo/resumeStore";
+import {
+  applyDemoJob,
+  cancelDemoApplication,
+  getDemoCompanyJobPosting,
+  getDemoPublicJobPosting,
+  getDemoTalent,
+  listDemoAdminCompanies,
+  listDemoAdminUsers,
+  listDemoApplicants,
+  listDemoApplications,
+  listDemoCompanyJobPostings,
+  listDemoInquiries,
+  listDemoPublicJobPostings,
+  listDemoTalents,
+  setDemoAdminRole,
+  setDemoAdminUserLocked,
+  setDemoCompanyLocked,
+  updateDemoInquiryStatus,
+} from "@/lib/demo/roleStore";
 import type {
   AwardRequest,
   CertificationRequest,
@@ -51,6 +70,7 @@ import type {
   ThumbnailPresignRequest,
   WorkDrivenTestSubmitRequest,
 } from "@/types/talent";
+import type { InquiryStatus } from "@/types/inquiry";
 
 type DemoHandlerContext = {
   method: string;
@@ -363,6 +383,133 @@ async function handleChoiceSectionRoutes(context: DemoHandlerContext) {
   return null;
 }
 
+async function handleRolePageRoutes(context: DemoHandlerContext) {
+  const { method, path, segments, searchParams, request } = context;
+
+  if (path === "/job-postings" && method === "GET") {
+    return jsonResponse(listDemoPublicJobPostings(searchParams));
+  }
+
+  if (segments[0] === "job-postings" && segments[2] === "apply" && method === "POST") {
+    const jobId = parseId(segments[1], "job posting id");
+    const body = await readJson<{ talentProfileId: number }>(request);
+    return jsonResponse(applyDemoJob(jobId, body.talentProfileId), 201);
+  }
+
+  if (segments[0] === "job-postings" && segments.length === 2 && method === "GET") {
+    return jsonResponse(getDemoPublicJobPosting(parseId(segments[1], "job posting id")));
+  }
+
+  if (path === "/me/job-applications" && method === "GET") {
+    return jsonResponse(listDemoApplications(searchParams));
+  }
+
+  if (
+    segments[0] === "me" &&
+    segments[1] === "job-applications" &&
+    segments[3] === "cancel" &&
+    method === "PATCH"
+  ) {
+    cancelDemoApplication(parseId(segments[2], "job application id"));
+    return noContentResponse();
+  }
+
+  if (path === "/profiles/search" && method === "GET") {
+    return jsonResponse(listDemoTalents(searchParams));
+  }
+
+  if (segments[0] === "profiles" && segments.length === 2 && method === "GET") {
+    return jsonResponse(getDemoTalent(parseId(segments[1], "profile id")));
+  }
+
+  if (path === "/company/job-postings/me" && method === "GET") {
+    return jsonResponse(listDemoCompanyJobPostings(searchParams));
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments[3] === "applications" &&
+    method === "GET"
+  ) {
+    return jsonResponse(listDemoApplicants(searchParams));
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments.length === 3 &&
+    method === "GET"
+  ) {
+    return jsonResponse(getDemoCompanyJobPosting(parseId(segments[2], "job posting id")));
+  }
+
+  if (path === "/admin/users" && method === "GET") {
+    return jsonResponse(listDemoAdminUsers(searchParams));
+  }
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "users" &&
+    (segments[3] === "lock" || segments[3] === "unlock") &&
+    method === "POST"
+  ) {
+    return jsonResponse(
+      setDemoAdminUserLocked(parseId(segments[2], "user id"), segments[3] === "lock")
+    );
+  }
+
+  if (segments[0] === "users" && segments[2] === "roles") {
+    setDemoAdminRole(parseId(segments[1], "user id"), method === "POST");
+    return noContentResponse();
+  }
+
+  if (path === "/admin/companies" && method === "GET") {
+    return jsonResponse(listDemoAdminCompanies(searchParams));
+  }
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "companies" &&
+    (segments[3] === "lock" || segments[3] === "unlock") &&
+    method === "POST"
+  ) {
+    return jsonResponse(
+      setDemoCompanyLocked(parseId(segments[2], "company id"), segments[3] === "lock")
+    );
+  }
+
+  if (path === "/admin/inquiries" && method === "GET") {
+    return jsonResponse(listDemoInquiries(searchParams));
+  }
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "inquiries" &&
+    segments[3] === "status" &&
+    method === "PATCH"
+  ) {
+    const body = await readJson<{ status: InquiryStatus }>(request);
+    updateDemoInquiryStatus(parseId(segments[2], "inquiry id"), body.status);
+    return noContentResponse();
+  }
+
+  if (path === "/admin/job-postings" && method === "GET") {
+    return jsonResponse(listDemoPublicJobPostings(searchParams));
+  }
+
+  if (
+    segments[0] === "admin" &&
+    segments[1] === "job-postings" &&
+    segments[3] === "applications" &&
+    method === "GET"
+  ) {
+    return jsonResponse(listDemoApplicants(searchParams));
+  }
+
+  return null;
+}
+
 export async function handleDemoApiRequest(request: Request, pathSegments: string[]) {
   const url = new URL(request.url);
   const segments = pathSegments.filter(Boolean);
@@ -382,6 +529,9 @@ export async function handleDemoApiRequest(request: Request, pathSegments: strin
 
     const profileResponse = await handleProfileRoutes(context);
     if (profileResponse) return profileResponse;
+
+    const rolePageResponse = await handleRolePageRoutes(context);
+    if (rolePageResponse) return rolePageResponse;
 
     if (segments[0] === "profile") {
       const arraySectionResponse = await handleArraySectionRoutes(context);
