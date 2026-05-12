@@ -6,6 +6,7 @@ import { useInitializeAuth } from "@/hooks/auth/useInitializeAuth";
 import SuccessToast from "@/components/SuccessToast";
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
 import { DemoGuideProvider } from "@/contexts/DemoGuideContext";
+import DemoApiLogPanel from "@/components/demo/DemoApiLogPanel";
 import { ReactNode } from "react";
 
 /**
@@ -45,6 +46,7 @@ export function Providers({ children }: { children: ReactNode }) {
       <ConfirmProvider>
         <DemoGuideProvider>{children}</DemoGuideProvider>
       </ConfirmProvider>
+      <DemoApiLogPanel />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

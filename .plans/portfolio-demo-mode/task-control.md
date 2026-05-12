@@ -8,7 +8,7 @@
 - [x] T04 - Demo auth and middleware
 - [x] T05 - Demo header navigation
 - [x] T06 - Demo hub pages
-- [ ] T07 - Demo API base and log panel
+- [x] T07 - Demo API base and log panel
 - [ ] T08 - Resume mock API flow
 - [ ] T09 - Role page mock coverage
 - [ ] T10 - Docs, env, assets policy

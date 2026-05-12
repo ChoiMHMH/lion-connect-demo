@@ -5,11 +5,29 @@
  * - 명시적으로 환경변수 사용
  */
 
-import { API_ERROR_MESSAGES, HTTP_STATUS } from "@/constants/api";
+import { cookies, headers } from "next/headers";
+import {
+  API_ERROR_MESSAGES,
+  DEMO_API_BASE_PATH,
+  HTTP_STATUS,
+  resolveApiRequestUrl,
+} from "@/constants/api";
+import { DEMO_AUTH_COOKIE, getDemoAuthProfile } from "@/constants/demoAuth";
 
 // Server-side에서 환경변수 명시적으로 사용
-const getApiBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.maple109.store/api";
+const getApiBaseUrl = async () => {
+  const cookieStore = await cookies();
+  const demoProfile = getDemoAuthProfile(cookieStore.get(DEMO_AUTH_COOKIE)?.value);
+
+  if (!demoProfile) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.maple109.store/api";
+  }
+
+  const headerStore = await headers();
+  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  const protocol = headerStore.get("x-forwarded-proto") ?? "http";
+
+  return host ? `${protocol}://${host}${DEMO_API_BASE_PATH}` : DEMO_API_BASE_PATH;
 };
 
 // API 에러 클래스
@@ -63,7 +81,11 @@ async function handleResponseError(response: Response): Promise<never> {
         "NOT_FOUND"
       );
     case HTTP_STATUS.CONFLICT:
-      throw new ServerApiError(errorMessage || "이미 존재하는 데이터입니다", response.status, "CONFLICT");
+      throw new ServerApiError(
+        errorMessage || "이미 존재하는 데이터입니다",
+        response.status,
+        "CONFLICT"
+      );
     case HTTP_STATUS.INTERNAL_SERVER_ERROR:
     case HTTP_STATUS.BAD_GATEWAY:
     case HTTP_STATUS.SERVICE_UNAVAILABLE:
@@ -81,8 +103,13 @@ async function handleResponseError(response: Response): Promise<never> {
  * Server-side GET 요청
  */
 export async function serverGet<T>(endpoint: string): Promise<T> {
-  const baseUrl = getApiBaseUrl();
-  const url = endpoint.startsWith("http") ? endpoint : `${baseUrl}${endpoint}`;
+  const baseUrl = await getApiBaseUrl();
+  const isDemoBase = baseUrl.endsWith(DEMO_API_BASE_PATH);
+  const { url } = resolveApiRequestUrl(endpoint, {
+    baseUrl,
+    demoBaseUrl: baseUrl,
+    demoMode: isDemoBase,
+  });
 
   console.log("[serverGet] Fetching URL:", url);
 
