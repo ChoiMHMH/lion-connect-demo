@@ -5,7 +5,7 @@
 - [x] T01 - Workflow bootstrap
 - [x] T02 - Global demo shell
 - [x] T03 - Auth CTA interception
-- [ ] T04 - Demo auth and middleware
+- [x] T04 - Demo auth and middleware
 - [ ] T05 - Demo header navigation
 - [ ] T06 - Demo hub pages
 - [ ] T07 - Demo API base and log panel

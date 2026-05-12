@@ -4,6 +4,8 @@ import { useAuthStore } from "@/store/authStore";
 import { recoverTokenAPI } from "@/lib/api/auth";
 import { useEffect } from "react";
 import { setAuthCookies, clearAuthCookies } from "@/actions/auth";
+import { clearDemoAuthCookies, setDemoAuthCookies } from "@/actions/demoAuth";
+import { getDemoAuthProfile, getDemoRoleByUser } from "@/constants/demoAuth";
 
 /**
  * 앱 초기화 훅 (토큰 복구)
@@ -37,6 +39,16 @@ export function useInitializeAuth() {
         if (!user) {
           // 역할 쿠키도 정리 (Server Action으로 HttpOnly 쿠키 삭제)
           await clearAuthCookies();
+          await clearDemoAuthCookies();
+          return;
+        }
+
+        const demoRole = getDemoRoleByUser(user);
+        const demoProfile = getDemoAuthProfile(demoRole);
+
+        if (demoRole && demoProfile) {
+          useAuthStore.getState().setAuth(demoProfile.accessToken, demoProfile.user);
+          await setDemoAuthCookies(demoRole);
           return;
         }
 
@@ -70,6 +82,7 @@ export function useInitializeAuth() {
 
         // 역할 쿠키도 삭제 (Server Action으로 HttpOnly 쿠키 삭제)
         await clearAuthCookies();
+        await clearDemoAuthCookies();
       } finally {
         // 초기화 완료 (성공/실패 상관없음)
         setInitialized(true);
