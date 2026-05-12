@@ -3,7 +3,7 @@
 > 완료 표시 전용. 상세 작업 내용은 개별 task 파일을 확인한다.
 
 - [x] T01 - Workflow bootstrap
-- [ ] T02 - Global demo shell
+- [x] T02 - Global demo shell
 - [ ] T03 - Auth CTA interception
 - [ ] T04 - Demo auth and middleware
 - [ ] T05 - Demo header navigation

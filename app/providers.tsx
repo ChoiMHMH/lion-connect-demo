@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useInitializeAuth } from "@/hooks/auth/useInitializeAuth";
 import SuccessToast from "@/components/SuccessToast";
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
+import { DemoGuideProvider } from "@/contexts/DemoGuideContext";
 import { ReactNode } from "react";
 
 /**
@@ -41,7 +42,9 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <InitializeApp />
       <SuccessToast />
-      <ConfirmProvider>{children}</ConfirmProvider>
+      <ConfirmProvider>
+        <DemoGuideProvider>{children}</DemoGuideProvider>
+      </ConfirmProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
