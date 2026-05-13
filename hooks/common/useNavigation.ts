@@ -2,13 +2,17 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  BUSINESS_CONNECT_HREF,
+  BUSINESS_CONNECT_ID,
+  scrollToBusinessConnect,
+  scrollToBusinessConnectWhenReady,
+} from "@/lib/businessConnectNavigation";
 
 export type NavLink = {
   label: string;
   href: string;
 };
-
-const BUSINESS_CONNECT_ID = "business-connect";
 
 /**
  * 네비게이션 로직을 관리하는 커스텀 훅
@@ -62,7 +66,7 @@ export function useNavigation(navLinks: NavLink[]) {
   const isLinkActive = useCallback(
     (link: NavLink): boolean => {
       // business-connect 링크인 경우
-      if (link.href === "/#business-connect") {
+      if (link.href === BUSINESS_CONNECT_HREF) {
         return pathname === "/" && activeSection === BUSINESS_CONNECT_ID;
       }
 
@@ -83,7 +87,7 @@ export function useNavigation(navLinks: NavLink[]) {
   useEffect(() => {
     // isLinkActive 함수를 useEffect 내부에서 직접 정의하여 무한 루프 방지
     const activeIndex = navLinks.findIndex((link) => {
-      if (link.href === "/#business-connect") {
+      if (link.href === BUSINESS_CONNECT_HREF) {
         return pathname === "/" && activeSection === BUSINESS_CONNECT_ID;
       }
       if (link.href === "/") {
@@ -122,41 +126,15 @@ export function useNavigation(navLinks: NavLink[]) {
   const handleNavClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
       // business-connect 링크가 아니면 기본 동작
-      if (href !== "/#business-connect") return;
+      if (href !== BUSINESS_CONNECT_HREF) return;
 
       e.preventDefault();
 
       if (pathname === "/") {
-        // 같은 페이지: Header 높이를 고려하여 정확한 위치로 스크롤
-        const element = document.getElementById(BUSINESS_CONNECT_ID);
-        if (element) {
-          const headerHeight = 80; // Header의 fixed 높이
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
-          });
-        }
+        scrollToBusinessConnect();
       } else {
-        // 다른 페이지: Next.js 클라이언트 사이드 라우팅으로 이동 (페이지 리로드 방지)
-        router.push("/");
-
-        // 페이지 이동 후 스크롤 (약간의 지연 필요)
-        setTimeout(() => {
-          const element = document.getElementById(BUSINESS_CONNECT_ID);
-          if (element) {
-            const headerHeight = 80;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
-
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth",
-            });
-          }
-        }, 100);
+        router.push(BUSINESS_CONNECT_HREF);
+        scrollToBusinessConnectWhenReady();
       }
     },
     [pathname, router]

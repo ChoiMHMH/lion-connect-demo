@@ -10,6 +10,12 @@ import {
   getDemoRouteSection,
   isDemoRouteActive,
 } from "@/constants/demoRoutes";
+import {
+  BUSINESS_CONNECT_HREF,
+  clearBusinessConnectHash,
+  scrollToBusinessConnect,
+  scrollToBusinessConnectWhenReady,
+} from "@/lib/businessConnectNavigation";
 import { activateDemoAuth } from "@/lib/demoAuthClient";
 import { cn } from "@/utils/utils";
 
@@ -37,34 +43,25 @@ export default function DemoHeader({ currentRole }: DemoHeaderProps) {
     };
   }, [pathname]);
 
-  const scrollToBusinessConnect = () => {
-    const element = document.getElementById("business-connect");
-    if (!element) return;
-
-    const headerHeight = 80;
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
-
-    window.scrollTo({
-      top: Math.max(0, offsetPosition),
-      behavior: "smooth",
-    });
-    window.history.replaceState(null, "", "/#business-connect");
-    setCurrentHash("#business-connect");
-  };
-
   const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href !== "/#business-connect") return;
+    if (href === "/" && pathname === "/") {
+      event.preventDefault();
+      clearBusinessConnectHash(setCurrentHash);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (href !== BUSINESS_CONNECT_HREF) return;
 
     event.preventDefault();
 
     if (pathname === "/") {
-      scrollToBusinessConnect();
+      scrollToBusinessConnect({ onHashChange: setCurrentHash });
       return;
     }
 
-    router.push("/");
-    window.setTimeout(scrollToBusinessConnect, 150);
+    router.push(BUSINESS_CONNECT_HREF);
+    scrollToBusinessConnectWhenReady({ onHashChange: setCurrentHash });
   };
 
   const handleRoleChange = async (role: DemoRole) => {
