@@ -16,6 +16,7 @@ import {
   deleteDemoProfile,
   deleteDemoProfileLink,
   getDemoProfile,
+  getDemoUpload,
   getDemoWorkDrivenResult,
   listDemoAwards,
   listDemoCertifications,
@@ -27,6 +28,7 @@ import {
   listDemoLanguages,
   listDemoProfileLinks,
   listDemoProfiles,
+  storeDemoUpload,
   submitDemoWorkDrivenResult,
   updateDemoAward,
   updateDemoCertification,
@@ -523,8 +525,33 @@ export async function handleDemoApiRequest(request: Request, pathSegments: strin
   };
 
   try {
-    if (segments[0] === "uploads" && context.method === "PUT") {
-      return noContentResponse();
+    if (segments[0] === "uploads") {
+      const objectKey = segments.slice(1).join("/");
+
+      if (!objectKey) {
+        return errorResponse("Upload object key is required", 400);
+      }
+
+      if (context.method === "PUT") {
+        storeDemoUpload(
+          objectKey,
+          await request.arrayBuffer(),
+          request.headers.get("content-type") || "application/octet-stream"
+        );
+        return noContentResponse();
+      }
+
+      if (context.method === "GET") {
+        const upload = getDemoUpload(objectKey);
+        if (!upload) return errorResponse("Demo upload was not found", 404);
+        return new Response(upload.body.slice(0), {
+          status: 200,
+          headers: {
+            "Content-Type": upload.contentType,
+            "Cache-Control": "no-store",
+          },
+        });
+      }
     }
 
     const profileResponse = await handleProfileRoutes(context);

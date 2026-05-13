@@ -66,7 +66,7 @@ export default function TrashButtonInput({
         )}
         {...props}
       />
-      {isHovered && hasValue && onDelete && (
+      {onDelete && (
         <button
           type="button"
           onClick={onDelete}

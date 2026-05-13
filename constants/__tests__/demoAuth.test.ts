@@ -21,7 +21,7 @@ describe("demoAuth constants", () => {
 
     expect(DEMO_AUTH_PROFILES.demo_company).toMatchObject({
       label: "기업 데모",
-      homeRoute: "/talents",
+      homeRoute: "/",
       roles: ["COMPANY", "JOINEDCOMPANY"],
       accessToken: `${DEMO_ACCESS_TOKEN_PREFIX}company`,
     });

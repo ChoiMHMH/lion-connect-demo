@@ -42,7 +42,7 @@ export const DEMO_AUTH_PROFILES: Record<DemoRole, DemoAuthProfile> = {
   demo_company: {
     role: "demo_company",
     label: "기업 데모",
-    homeRoute: "/talents",
+    homeRoute: "/",
     roles: ["COMPANY", "JOINEDCOMPANY"],
     accessToken: `${DEMO_ACCESS_TOKEN_PREFIX}company`,
     user: {

@@ -14,3 +14,4 @@
 - [x] T10 - Docs, env, assets policy
 - [x] T11 - Verification and evaluation
 - [x] T12 - Playwright demo smoke tests
+- [x] T13 - Demo polish regressions

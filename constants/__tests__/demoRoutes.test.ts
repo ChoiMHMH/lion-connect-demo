@@ -10,7 +10,6 @@ describe("demoRoutes", () => {
     expect(DEMO_ROUTE_SECTIONS).toHaveLength(3);
     expect(getDemoRouteSection("demo_talent")?.links.map((link) => link.href)).toEqual([
       "/dashboard",
-      "/dashboard/job-board",
       "/dashboard/profile",
       "/dashboard/applications",
     ]);

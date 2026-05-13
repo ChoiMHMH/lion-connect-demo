@@ -79,6 +79,7 @@ function buildStore(): DemoResumeStore {
 }
 
 let store = buildStore();
+const uploadedFiles = new Map<string, { body: ArrayBuffer; contentType: string }>();
 
 function now() {
   return new Date().toISOString();
@@ -161,6 +162,7 @@ function deleteSectionItem<T extends DemoSectionItem>(
 
 export function resetDemoResumeStore() {
   store = buildStore();
+  uploadedFiles.clear();
 }
 
 export function listDemoProfiles() {
@@ -520,11 +522,20 @@ export function buildDemoPresignResponse(
 ) {
   const safeFilename = originalFilename.replace(/[^a-zA-Z0-9._-]/g, "-") || `${kind}.file`;
   const objectKey = `demo/profile-${profileId}/${safeFilename}`;
+  const fileUrl = `/api/demo/uploads/${objectKey}`;
   return {
-    uploadUrl: `/api/demo/uploads/${objectKey}`,
-    fileUrl: `/demo-assets/profile-${profileId}/${safeFilename}`,
+    uploadUrl: fileUrl,
+    fileUrl,
     objectKey,
   };
+}
+
+export function storeDemoUpload(objectKey: string, body: ArrayBuffer, contentType: string) {
+  uploadedFiles.set(objectKey, { body, contentType });
+}
+
+export function getDemoUpload(objectKey: string) {
+  return uploadedFiles.get(objectKey) ?? null;
 }
 
 export function completeDemoThumbnailUpload(
@@ -537,7 +548,7 @@ export function completeDemoThumbnailUpload(
   }
 ) {
   ensureProfile(profileId);
-  const fileUrl = `/demo-assets/profile-${profileId}/${body.originalFilename}`;
+  const fileUrl = `/api/demo/uploads/${body.objectKey}`;
   return {
     objectKey: body.objectKey,
     fileUrl,
@@ -554,7 +565,7 @@ export function completeDemoPortfolioUpload(
   }
 ) {
   ensureProfile(profileId);
-  const fileUrl = `/demo-assets/profile-${profileId}/${body.originalFilename}`;
+  const fileUrl = `/api/demo/uploads/${body.objectKey}`;
   const result = {
     id: nextSectionId("profileLinks"),
     objectKey: body.objectKey,

@@ -51,7 +51,7 @@ export function FormContainer({
       )}
       {...props}
     >
-      {hasValue && (
+      {onDelete && (
         <button
           onClick={() => {
             onDelete?.();

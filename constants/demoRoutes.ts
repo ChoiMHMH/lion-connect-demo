@@ -21,7 +21,6 @@ export const DEMO_ROUTE_SECTIONS: DemoRouteSection[] = [
     homeHref: DEMO_AUTH_PROFILES.demo_talent.homeRoute,
     links: [
       { label: "대시보드", href: "/dashboard" },
-      { label: "채용", href: "/dashboard/job-board" },
       { label: "이력서", href: "/dashboard/profile" },
       { label: "지원 현황", href: "/dashboard/applications" },
     ],
@@ -44,7 +43,6 @@ export const DEMO_ROUTE_SECTIONS: DemoRouteSection[] = [
     entryHref: "/demo/enter/admin",
     homeHref: DEMO_AUTH_PROFILES.demo_admin.homeRoute,
     links: [
-      { label: "관리자 홈", href: "/admin" },
       { label: "문의", href: "/admin/inquiries" },
       { label: "사용자", href: "/admin/users" },
       { label: "기업", href: "/admin/companies" },

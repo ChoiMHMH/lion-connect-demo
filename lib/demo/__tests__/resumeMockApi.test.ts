@@ -133,14 +133,14 @@ describe("demo resume mock API", () => {
     expect(presigned.body).toEqual(
       expect.objectContaining({
         uploadUrl: "/api/demo/uploads/demo/profile-1/portfolio.pdf",
-        fileUrl: "/demo-assets/profile-1/portfolio.pdf",
+        fileUrl: "/api/demo/uploads/demo/profile-1/portfolio.pdf",
       })
     );
     expect(upload.status).toBe(204);
     expect(completed.body).toEqual(
       expect.objectContaining({
         originalFilename: "portfolio.pdf",
-        fileUrl: "/demo-assets/profile-1/portfolio.pdf",
+        fileUrl: "/api/demo/uploads/demo/profile-1/portfolio.pdf",
       })
     );
   });

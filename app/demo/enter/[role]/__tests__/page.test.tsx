@@ -54,7 +54,7 @@ describe("DemoRoleEntryPage", () => {
 
     await waitFor(() => {
       expect(mockActivateDemoAuth).toHaveBeenCalledWith("demo_company");
-      expect(mockReplace).toHaveBeenCalledWith("/talents");
+      expect(mockReplace).toHaveBeenCalledWith("/");
     });
   });
 
