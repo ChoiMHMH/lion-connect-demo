@@ -28,6 +28,9 @@ describe("demoRoutes", () => {
     expect(isDemoRouteActive("/dashboarding", "/dashboard")).toBe(false);
     expect(isDemoRouteActive("/talents/3", "/talents")).toBe(true);
     expect(isDemoRouteActive("/", "/")).toBe(true);
+    expect(isDemoRouteActive("/", "/", "#business-connect")).toBe(false);
+    expect(isDemoRouteActive("/", "/#business-connect")).toBe(false);
+    expect(isDemoRouteActive("/", "/#business-connect", "#business-connect")).toBe(true);
     expect(isDemoRouteActive("/jobs", "/")).toBe(false);
   });
 });

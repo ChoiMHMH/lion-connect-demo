@@ -51,16 +51,21 @@ export const DEMO_ROUTE_SECTIONS: DemoRouteSection[] = [
   },
 ];
 
-const EXACT_ACTIVE_HREFS = new Set(["/", "/dashboard", "/admin"]);
+const BUSINESS_CONNECT_HASH = "#business-connect";
+const EXACT_ACTIVE_HREFS = new Set(["/dashboard", "/admin"]);
 
 export function getDemoRouteSection(role: DemoRole | null | undefined) {
   if (!role) return null;
   return DEMO_ROUTE_SECTIONS.find((section) => section.role === role) ?? null;
 }
 
-export function isDemoRouteActive(pathname: string, href: string) {
+export function isDemoRouteActive(pathname: string, href: string, hash = "") {
   if (href === "/#business-connect") {
-    return pathname === "/";
+    return pathname === "/" && hash === BUSINESS_CONNECT_HASH;
+  }
+
+  if (href === "/") {
+    return pathname === "/" && hash !== BUSINESS_CONNECT_HASH;
   }
 
   if (EXACT_ACTIVE_HREFS.has(href)) {

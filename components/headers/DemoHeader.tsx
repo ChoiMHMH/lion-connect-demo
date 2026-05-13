@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type DemoRole } from "@/constants/demoAuth";
 import {
   DEMO_ROUTE_SECTIONS,
@@ -21,7 +21,51 @@ export default function DemoHeader({ currentRole }: DemoHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [pendingRole, setPendingRole] = useState<DemoRole | null>(null);
+  const [currentHash, setCurrentHash] = useState("");
   const currentSection = getDemoRouteSection(currentRole) ?? DEMO_ROUTE_SECTIONS[0];
+
+  useEffect(() => {
+    const syncHash = () => setCurrentHash(window.location.hash);
+
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
+  }, [pathname]);
+
+  const scrollToBusinessConnect = () => {
+    const element = document.getElementById("business-connect");
+    if (!element) return;
+
+    const headerHeight = 80;
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+    window.scrollTo({
+      top: Math.max(0, offsetPosition),
+      behavior: "smooth",
+    });
+    window.history.replaceState(null, "", "/#business-connect");
+    setCurrentHash("#business-connect");
+  };
+
+  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href !== "/#business-connect") return;
+
+    event.preventDefault();
+
+    if (pathname === "/") {
+      scrollToBusinessConnect();
+      return;
+    }
+
+    router.push("/");
+    window.setTimeout(scrollToBusinessConnect, 150);
+  };
 
   const handleRoleChange = async (role: DemoRole) => {
     const section = getDemoRouteSection(role);
@@ -85,12 +129,13 @@ export default function DemoHeader({ currentRole }: DemoHeaderProps) {
             aria-label="현재 역할 메뉴"
           >
             {currentSection.links.map((link) => {
-              const isActive = isDemoRouteActive(pathname, link.href);
+              const isActive = isDemoRouteActive(pathname, link.href, currentHash);
 
               return (
                 <Link
                   key={link.href}
                   href={link.href}
+                  onClick={(event) => handleNavClick(event, link.href)}
                   className={cn(
                     "shrink-0 border-b-2 py-2 font-ko-title text-base font-semibold transition-colors",
                     isActive
