@@ -9,6 +9,9 @@ import { useScrollAnimation } from "@/hooks/common/useScrollAnimation";
 import UniversityCard from "./UniversityCard";
 import RegionFilterButton from "./RegionFilterButton";
 
+const COLLAPSED_GRID_HEIGHT = 600;
+const INITIAL_UNIVERSITY_COUNT = 28;
+
 /**
  * UniversityGridSection Component
  *
@@ -21,7 +24,8 @@ import RegionFilterButton from "./RegionFilterButton";
  */
 export default function UniversityGridSection() {
   const [selectedRegion, setSelectedRegion] = useState<string>("전체");
-  const [showAll, setShowAll] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [renderAll, setRenderAll] = useState(false);
 
   const { ref: headerRef, isVisible: isHeaderVisible } = useScrollAnimation<HTMLDivElement>({
     threshold: 0.2,
@@ -36,10 +40,27 @@ export default function UniversityGridSection() {
   const filteredUniversities = getUniversitiesByRegionGroup(selectedRegion);
 
   // 더보기 버튼 상태에 따라 표시할 대학교 결정
-  const displayedUniversities = showAll ? filteredUniversities : filteredUniversities.slice(0, 28);
+  const displayedUniversities = renderAll
+    ? filteredUniversities
+    : filteredUniversities.slice(0, INITIAL_UNIVERSITY_COUNT);
 
   // 더보기 버튼 표시 여부
-  const hasMore = filteredUniversities.length > 28;
+  const hasMore = filteredUniversities.length > INITIAL_UNIVERSITY_COUNT;
+
+  const handleShowMore = () => {
+    setRenderAll(true);
+    setIsExpanded(true);
+  };
+
+  const handleCollapse = () => {
+    setIsExpanded(false);
+  };
+
+  const handleCollapseComplete = () => {
+    if (!isExpanded) {
+      setRenderAll(false);
+    }
+  };
 
   return (
     <section className="w-full min-w-[1444px] bg-white flex justify-center items-start">
@@ -78,7 +99,8 @@ export default function UniversityGridSection() {
                 isActive={selectedRegion === region}
                 onClick={() => {
                   setSelectedRegion(region);
-                  setShowAll(false); // 지역 변경 시 더보기 초기화
+                  setIsExpanded(false);
+                  setRenderAll(false); // 지역 변경 시 더보기 초기화
                 }}
               />
             </div>
@@ -86,14 +108,15 @@ export default function UniversityGridSection() {
         </div>
 
         {/* University Grid Container */}
-        <div className="w-full relative">
+        <motion.div
+          initial={false}
+          animate={hasMore ? { height: isExpanded ? "auto" : COLLAPSED_GRID_HEIGHT } : undefined}
+          transition={{ duration: isExpanded ? 0.45 : 0.65, ease: [0.22, 1, 0.36, 1] }}
+          onAnimationComplete={handleCollapseComplete}
+          className="w-full relative overflow-hidden"
+        >
           {/* University Grid - 마지막 줄 가운데 정렬을 위해 flex wrap 사용 */}
-          <motion.div
-            layout
-            className={`w-full flex flex-wrap justify-center gap-x-8 gap-y-12 ${
-              !showAll && hasMore ? "max-h-[600px] overflow-hidden" : ""
-            }`}
-          >
+          <motion.div layout className="w-full flex flex-wrap justify-center gap-x-8 gap-y-12">
             <AnimatePresence mode="popLayout">
               {displayedUniversities.map((university) => (
                 <motion.div
@@ -111,17 +134,17 @@ export default function UniversityGridSection() {
           </motion.div>
 
           {/* 더보기 버튼 */}
-          {hasMore && !showAll && (
+          {hasMore && !isExpanded && !renderAll && (
             <div className="w-full h-56 absolute bottom-0 left-0 bg-linear-to-b from-white/0 to-white flex justify-center items-end pb-8">
-              <CTAButton onClick={() => setShowAll(true)}>더보기</CTAButton>
+              <CTAButton onClick={handleShowMore}>더보기</CTAButton>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* 접기 버튼 */}
-        {showAll && (
+        {isExpanded && (
           <button
-            onClick={() => setShowAll(false)}
+            onClick={handleCollapse}
             className=" hover:cursor-pointer px-8 py-3 bg-white border-2 border-orange-600 rounded-full text-orange-600 text-base font-bold hover:bg-orange-50 transition-colors flex items-center gap-2"
           >
             접기
