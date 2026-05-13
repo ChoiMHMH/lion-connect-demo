@@ -16,3 +16,4 @@
 - [x] T12 - Playwright demo smoke tests
 - [x] T13 - Demo polish regressions
 - [x] T14 - Demo CTA and anchor navigation polish
+- [x] T15 - Demo job detail company disclaimer
