@@ -89,6 +89,10 @@ function parseRolesFromCookie(cookieValue: string | undefined): string[] {
   }
 }
 
+function isDemoPublicPath(pathname: string): boolean {
+  return pathname === "/demo" || pathname.startsWith("/demo/");
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
@@ -132,6 +136,7 @@ export function middleware(request: NextRequest) {
     pathname !== "/" &&
     pathname.startsWith("/") &&
     !pathname.startsWith("/dashboard") &&
+    !isDemoPublicPath(pathname) &&
     !isStaticFile
   ) {
     // 이미 보호된 경로(/talents, /jobs, /admin 등)는 PROTECTED_ROUTES에서 처리

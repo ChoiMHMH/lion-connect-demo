@@ -31,6 +31,16 @@ describe("middleware demo auth", () => {
     );
   });
 
+  it("인재 demo cookie에서도 demo hub 경로는 루트 하위 경로 리다이렉트에서 제외한다", () => {
+    const cookie = `${DEMO_AUTH_COOKIE}=demo_talent`;
+
+    expect(locationOf(middleware(request("/demo", cookie)))).toBeNull();
+    expect(locationOf(middleware(request("/demo/admin", cookie)))).toBeNull();
+    expect(locationOf(middleware(request("/about", cookie)))).toBe(
+      "https://lion-connect.test/dashboard"
+    );
+  });
+
   it("관리자 demo cookie만으로 /admin 보호 라우트를 통과한다", () => {
     const cookie = `${DEMO_AUTH_COOKIE}=demo_admin`;
 
