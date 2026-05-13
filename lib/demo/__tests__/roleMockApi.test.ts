@@ -163,4 +163,19 @@ describe("demo role page mock API", () => {
       })
     );
   });
+
+  it("관리자 문의 상태 변경을 mock하고 목록에 반영한다", async () => {
+    const updated = await callDemoApi("PATCH", "/admin/inquiries/7001/status", {
+      status: "DONE",
+    });
+    const inquiries = await callDemoApi("GET", "/admin/inquiries?page=0&size=10");
+
+    expect(updated.status).toBe(204);
+    expect(inquiries.body.content[0]).toEqual(
+      expect.objectContaining({
+        id: 7001,
+        status: "DONE",
+      })
+    );
+  });
 });
