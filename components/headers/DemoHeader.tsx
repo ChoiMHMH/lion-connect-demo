@@ -78,10 +78,15 @@ export default function DemoHeader({ currentRole }: DemoHeaderProps) {
     }
   };
 
+  const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    void handleRoleChange("demo_company");
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-border-accent bg-bg-primary">
       <div className="mx-auto flex h-20 w-full max-w-[1440px] items-center gap-8 px-8">
-        <Link href="/demo" className="flex shrink-0 items-center gap-2">
+        <Link href="/" onClick={handleBrandClick} className="flex shrink-0 items-center gap-2">
           <Image
             src="/icons/likelion-favicon-60.svg"
             alt="LionConnect Demo Logo"
