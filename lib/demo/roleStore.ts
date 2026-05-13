@@ -5,7 +5,12 @@ import type {
   ProfileLockResponse,
 } from "@/types/admin";
 import type { PublicJobPosting, PublicJobPostingsResponse } from "@/types/company-job-posting";
-import type { InquiryListResponse, InquiryStatus } from "@/types/inquiry";
+import type {
+  CreateInquiryRequest,
+  Inquiry,
+  InquiryListResponse,
+  InquiryStatus,
+} from "@/types/inquiry";
 import type {
   ApplyJobResponse,
   CompanyApplicantsResponse,
@@ -259,6 +264,31 @@ export function listDemoInquiries(searchParams: URLSearchParams): InquiryListRes
     : store.inquiries;
   const { page, size } = pageParams(searchParams, 10);
   return paged(filtered, page, size);
+}
+
+export function createDemoInquiry(data: CreateInquiryRequest): Inquiry {
+  const nextInquiryId = Math.max(0, ...store.inquiries.map((inquiry) => inquiry.id)) + 1;
+  const inquiry: Inquiry = {
+    id: nextInquiryId,
+    profileId: 0,
+    profileName: "",
+    profileStorageUrl: "",
+    companyName: data.companyName,
+    contactPerson: data.contactPerson,
+    department: data.department,
+    position: data.position,
+    email: data.email,
+    phoneNumber: data.phoneNumber,
+    content: data.content,
+    privacyPolicyAgreed: data.agreePrivacy,
+    status: "NEW",
+    createdAt: DEMO_ROLE_NOW,
+    updatedAt: DEMO_ROLE_NOW,
+  };
+
+  store.inquiries = [inquiry, ...store.inquiries];
+
+  return clone(inquiry);
 }
 
 export function updateDemoInquiryStatus(inquiryId: number, status: InquiryStatus) {

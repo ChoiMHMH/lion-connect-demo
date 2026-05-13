@@ -44,6 +44,7 @@ import {
 import {
   applyDemoJob,
   cancelDemoApplication,
+  createDemoInquiry,
   getDemoCompanyJobPosting,
   getDemoPublicJobPosting,
   getDemoTalent,
@@ -72,7 +73,7 @@ import type {
   ThumbnailPresignRequest,
   WorkDrivenTestSubmitRequest,
 } from "@/types/talent";
-import type { InquiryStatus } from "@/types/inquiry";
+import type { CreateInquiryRequest, InquiryStatus } from "@/types/inquiry";
 
 type DemoHandlerContext = {
   method: string;
@@ -483,6 +484,10 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
 
   if (path === "/admin/inquiries" && method === "GET") {
     return jsonResponse(listDemoInquiries(searchParams));
+  }
+
+  if (path === "/inquiries" && method === "POST") {
+    return jsonResponse(createDemoInquiry(await readJson<CreateInquiryRequest>(request)), 201);
   }
 
   if (

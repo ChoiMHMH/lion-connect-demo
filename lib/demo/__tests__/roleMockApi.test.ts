@@ -137,4 +137,30 @@ describe("demo role page mock API", () => {
     expect(jobPostings.body.content[0]).toEqual(expect.objectContaining({ jobPostingId: 9001 }));
     expect(applicants.body.content[0]).toEqual(expect.objectContaining({ talentProfileId: 1 }));
   });
+
+  it("기업 문의 제출을 mock하고 관리자 문의 목록에 저장한다", async () => {
+    const submitted = await callDemoApi("POST", "/inquiries", {
+      companyName: "신규 데모사",
+      contactPerson: "홍길동",
+      department: "인사팀",
+      position: "",
+      email: "demo-inquiry@example.com",
+      phoneNumber: "010-1234-5678",
+      content: "데모 문의 제출 테스트입니다.",
+      agreePrivacy: true,
+    });
+    const inquiries = await callDemoApi("GET", "/admin/inquiries?page=0&size=10");
+
+    expect(submitted.status).toBe(201);
+    expect(inquiries.body.content[0]).toEqual(
+      expect.objectContaining({
+        companyName: "신규 데모사",
+        contactPerson: "홍길동",
+        email: "demo-inquiry@example.com",
+        content: "데모 문의 제출 테스트입니다.",
+        privacyPolicyAgreed: true,
+        status: "NEW",
+      })
+    );
+  });
 });
