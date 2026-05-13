@@ -40,13 +40,21 @@ export function JobCard({
       onClick={handleClick}
       {...props}
     >
-      <div className="w-[275px] h-[184px] relative bg-gradient-to-l from-black/10 via-black/0 to-black/20 rounded-lg overflow-hidden">
-        <div className="absolute inset-0 bg-neutral-200 animate-pulse" />
+      <div className="w-[275px] h-[184px] relative bg-neutral-200 rounded-lg overflow-hidden">
+        <Image
+          src={imageUrl}
+          alt=""
+          fill
+          aria-hidden="true"
+          className="object-cover scale-110 blur-xl opacity-45"
+          sizes="275px"
+          priority={false}
+        />
         <Image
           src={imageUrl}
           alt={title}
           fill
-          className="object-cover relative z-10"
+          className="object-contain relative z-10"
           sizes="275px"
           priority={false}
         />

@@ -38,7 +38,7 @@ export default function JobImageCarousel({ images }: JobImageCarouselProps) {
         {images.map((image, index) => (
           <div
             key={index}
-            className={`w-[570px] h-96 relative ${
+            className={`w-[570px] h-96 relative overflow-hidden bg-neutral-200 ${
               index === 0
                 ? "rounded-tl-xl rounded-bl-xl"
                 : index === images.length - 1
@@ -46,12 +46,20 @@ export default function JobImageCarousel({ images }: JobImageCarouselProps) {
                   : ""
             }`}
           >
-            <div className="absolute inset-0 bg-neutral-200 animate-pulse" />
+            <Image
+              src={image}
+              alt=""
+              fill
+              aria-hidden="true"
+              className="object-cover scale-110 blur-xl opacity-45"
+              sizes="570px"
+            />
             <Image
               src={image}
               alt={`채용 이미지 ${index + 1}`}
               fill
-              className="object-cover relative z-10"
+              className="object-contain relative z-10"
+              sizes="570px"
             />
           </div>
         ))}
