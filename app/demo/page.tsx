@@ -7,16 +7,19 @@ const roleSummaries = {
     title: "인재 데모",
     description: "채용 탐색, 이력서 작성/수정, 지원 현황을 인재 role로 확인합니다.",
     highlight: "이력서 저장 플로우",
+    ctaLabel: "인재용 페이지 바로가기",
   },
   demo_company: {
     title: "기업 데모",
     description: "인재 탐색, 채용공고 등록, 지원자 확인 흐름을 기업 role로 확인합니다.",
     highlight: "기업용 보호 라우트",
+    ctaLabel: "기업용 페이지 바로가기",
   },
   demo_admin: {
     title: "관리자 데모",
     description: "사용자, 기업, 지원 현황, 문의 목록을 관리자 role로 확인합니다.",
     highlight: "RBAC 관리자 화면",
+    ctaLabel: "관리자페이지 바로가기",
   },
 } as const;
 
@@ -101,7 +104,7 @@ export default function DemoHubPage() {
                   href={section.entryHref}
                   className="rounded-md bg-neutral-900 px-4 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-neutral-700"
                 >
-                  {summary.title} 시작
+                  {summary.ctaLabel}
                 </Link>
                 <div className="flex flex-wrap gap-2">
                   {section.links.slice(0, 3).map((link) => (

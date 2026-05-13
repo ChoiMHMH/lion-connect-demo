@@ -41,12 +41,19 @@ describe("demo role page mock API", () => {
         jobPostingId: 9001,
         companyName: "데모커머스",
         jobRoleName: "프론트엔드",
+        thumbnailImageUrl: "/demo/demo-cover.png",
       })
     );
     expect(jobDetail.body).toEqual(
       expect.objectContaining({
         jobPostingId: 9001,
         title: "Next.js 프론트엔드 개발자",
+      })
+    );
+    expect(jobDetail.body.images[0]).toEqual(
+      expect.objectContaining({
+        url: "/demo/demo-cover.png",
+        fileUrl: "/demo/demo-cover.png",
       })
     );
     expect(applications.body.content[0]).toEqual(
