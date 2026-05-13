@@ -9,6 +9,40 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.maple109.store/api";
 
+export const DEMO_API_BASE_PATH = "/api/demo";
+
+type ResolveApiRequestUrlOptions = {
+  baseUrl?: string;
+  demoBaseUrl?: string;
+  demoMode?: boolean;
+};
+
+export function resolveApiRequestUrl(
+  endpoint: string,
+  {
+    baseUrl = API_BASE_URL,
+    demoBaseUrl = DEMO_API_BASE_PATH,
+    demoMode = false,
+  }: ResolveApiRequestUrlOptions = {}
+) {
+  if (endpoint.startsWith("http")) {
+    return {
+      url: endpoint,
+      path: endpoint,
+      isDemoRequest: false,
+    };
+  }
+
+  const base = demoMode ? demoBaseUrl : baseUrl;
+  const url = `${base}${endpoint}`;
+
+  return {
+    url,
+    path: demoMode ? `${DEMO_API_BASE_PATH}${endpoint}` : endpoint,
+    isDemoRequest: demoMode,
+  };
+}
+
 // S3 Base URL
 export const S3_BASE_URL = "https://lion-connect-files.s3.ap-northeast-2.amazonaws.com";
 

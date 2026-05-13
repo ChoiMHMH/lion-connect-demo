@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useNavigation, NavLink } from "@/hooks/common/useNavigation";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
+import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 
 export interface BaseHeaderProps {
   visibleLinks: NavLink[];
@@ -22,7 +22,6 @@ export default function BaseHeader({ visibleLinks, logoHref = "/" }: BaseHeaderP
   const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
-  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -95,12 +94,9 @@ export default function BaseHeader({ visibleLinks, logoHref = "/" }: BaseHeaderP
             </>
           ) : (
             /* Login Button - SSR과 비로그인 상태 모두 동일 */
-            <Link
-              href={`/login?returnTo=${encodeURIComponent(pathname || "/")}`}
-              className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity"
-            >
+            <DemoAuthCtaButton className="px-4 py-2 bg-accent rounded-lg text-text-inverse-primary text-sm font-semibold font-ko-title hover:opacity-90 transition-opacity cursor-pointer">
               로그인/회원가입
-            </Link>
+            </DemoAuthCtaButton>
           )}
         </div>
       </div>

@@ -8,12 +8,14 @@
  */
 
 import {
-  API_BASE_URL,
   API_CONFIG,
   API_ERROR_MESSAGES,
   HTTP_STATUS,
   API_ENDPOINTS,
+  resolveApiRequestUrl,
 } from "@/constants/api";
+import { isDemoAuthState } from "@/lib/demoMode";
+import { recordDemoApiLog } from "@/store/demoApiLogStore";
 import { useAuthStore } from "@/store/authStore";
 
 // API 에러 클래스
@@ -141,7 +143,7 @@ export async function refreshAccessToken(): Promise<string> {
   // 새로운 리프레시 Promise 생성
   refreshPromise = (async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`, {
+      const response = await fetch(resolveApiRequestUrl(API_ENDPOINTS.AUTH.REFRESH_TOKEN).url, {
         method: "POST",
         credentials: "include", // 리프레시 토큰 쿠키 포함
       });
@@ -202,8 +204,15 @@ export async function refreshAccessToken(): Promise<string> {
  * - 401 에러 시 자동 토큰 리프레시 및 재시도
  */
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  // URL 구성 (endpoint가 절대 경로인 경우 그대로 사용, 상대 경로인 경우 BASE_URL 추가)
-  const url = endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const authState = useAuthStore.getState();
+  const demoMode = isDemoAuthState({
+    accessToken: authState.accessToken,
+    user: authState.user,
+  });
+  const { url, path, isDemoRequest } = resolveApiRequestUrl(endpoint, { demoMode });
+  const method = options.method ?? "GET";
+  const startedAt = Date.now();
+  let recordedDemoResponse = false;
 
   // 기본 헤더 설정
   const headers: Record<string, string> = {
@@ -212,7 +221,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
   // Zustand에서 액세스 토큰 가져와서 Authorization 헤더 추가
   if (!options.skipAuth) {
-    const accessToken = useAuthStore.getState().accessToken;
+    const accessToken = authState.accessToken;
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
     }
@@ -235,9 +244,24 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       credentials: options.skipCredentials ? "omit" : "include", // 조건부 credentials
     });
 
+    if (isDemoRequest) {
+      recordDemoApiLog({
+        method,
+        path,
+        status: response.status,
+        durationMs: Date.now() - startedAt,
+      });
+      recordedDemoResponse = true;
+    }
+
     // 401 Unauthorized 처리 (토큰 만료)
     // _isRetry가 true면 이미 재시도한 요청이므로 무한 루프 방지
-    if (response.status === HTTP_STATUS.UNAUTHORIZED && !options.skipAuth && !options._isRetry) {
+    if (
+      response.status === HTTP_STATUS.UNAUTHORIZED &&
+      !options.skipAuth &&
+      !options._isRetry &&
+      !isDemoRequest
+    ) {
       try {
         // refreshAccessToken 내부에서 중복 요청을 처리하므로 바로 호출
         const newAccessToken = await refreshAccessToken();
@@ -327,6 +351,15 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       return {} as T;
     }
   } catch (error) {
+    if (isDemoRequest && !recordedDemoResponse) {
+      recordDemoApiLog({
+        method,
+        path,
+        status: "ERR",
+        durationMs: Date.now() - startedAt,
+      });
+    }
+
     // ApiError는 그대로 전달
     if (error instanceof ApiError) {
       throw error;

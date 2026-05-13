@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { DEMO_AUTH_COOKIE, getDemoAuthProfile } from "@/constants/demoAuth";
 
 /**
  * 사용자 역할 (utils/rbac.ts와 동기화)
@@ -98,7 +99,10 @@ export function middleware(request: NextRequest) {
 
   // 역할 쿠키 읽기
   const rolesCookie = request.cookies.get(USER_ROLES_COOKIE);
-  const userRoles = parseRolesFromCookie(rolesCookie?.value);
+  const demoRoleCookie = request.cookies.get(DEMO_AUTH_COOKIE);
+  const demoProfile = getDemoAuthProfile(demoRoleCookie?.value);
+  const rolesFromCookie = parseRolesFromCookie(rolesCookie?.value);
+  const userRoles = rolesFromCookie.length > 0 ? rolesFromCookie : (demoProfile?.roles ?? []);
   const isLoggedIn = userRoles.length > 0;
 
   // 0. 레거시 URL 리다이렉션 (기존 멤버 경로 → dashboard)

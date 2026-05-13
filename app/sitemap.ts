@@ -1,9 +1,8 @@
 import { MetadataRoute } from "next";
-import { fetchPublicJobPostings } from "@/lib/api/jobPostings";
+import { fetchPublicJobPostingsServer } from "@/lib/api/serverJobPostings";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app";
 
   // 1. 정적 페이지
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -23,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // 2. 동적 채용공고 페이지 (/dashboard/job-board/[jobId])
-    const jobsResponse = await fetchPublicJobPostings({
+    const jobsResponse = await fetchPublicJobPostingsServer({
       page: 0,
       size: 1000, // 모든 공고 가져오기
     });
@@ -45,3 +44,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 // ISR: 1시간마다 sitemap 갱신
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";

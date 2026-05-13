@@ -261,6 +261,9 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     font-family: var(--font-body);
     background-color: var(--color-page-bg);

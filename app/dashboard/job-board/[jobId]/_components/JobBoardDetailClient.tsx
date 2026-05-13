@@ -184,7 +184,7 @@ export default function JobBoardDetailClient({ jobId }: JobBoardDetailClientProp
           </div>
 
           {/* 저작권 안내 */}
-          <JobCopyright />
+          <JobCopyright companyName={job.companyName || "회사"} />
         </div>
 
         {/* 우측 지원하기 영역 */}

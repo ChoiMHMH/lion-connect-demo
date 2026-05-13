@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
+import DemoAuthCtaButton from "./DemoAuthCtaButton";
 
 type AuthButtonProps = {
   className?: string;
@@ -32,9 +32,5 @@ export default function AuthButton({ className = "" }: AuthButtonProps) {
   }
 
   // 로그인되지 않은 경우 로그인 버튼
-  return (
-    <Link href="/login" className={buttonClassName}>
-      로그인/회원가입
-    </Link>
-  );
+  return <DemoAuthCtaButton className={buttonClassName}>로그인/회원가입</DemoAuthCtaButton>;
 }

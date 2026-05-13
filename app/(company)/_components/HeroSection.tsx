@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import ScrollDownButton from "./ScrollDownButton";
 import BusinessConnectButton from "./BusinessConnectButton";
+import DemoTalentSearchButton from "./DemoTalentSearchButton";
 
 type HeroSectionProps = {
   backgroundImage?: string;
@@ -48,18 +48,7 @@ export default function HeroSection({
 
         {/* CTA Buttons */}
         <nav className="inline-flex gap-4 animate-[fadeInUpScale_1s_ease-out_0.9s_forwards] opacity-0">
-          <Link
-            href="/talents"
-            className="h-12 gap-4 px-6 bg-bg-accent rounded-full inline-flex items-center justify-center hover:opacity-90 transition-opacity text-text-inverse-primary text-lg font-semibold leading-7"
-          >
-            <span>인재 탐색 시작하기</span>
-            <Image
-              src="/landing/icons/outline-arrow-right.svg"
-              alt="Arrow"
-              width={16}
-              height={16}
-            />
-          </Link>
+          <DemoTalentSearchButton />
           <BusinessConnectButton />
         </nav>
       </article>

@@ -10,6 +10,8 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { get, ApiError } from "@/lib/apiClient";
+import { DEMO_AUTH_PROFILES } from "@/constants/demoAuth";
+import { useDemoApiLogStore } from "@/store/demoApiLogStore";
 import { useAuthStore } from "@/store/authStore";
 
 function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
@@ -34,10 +36,12 @@ function emptyOkResponse(): Response {
 describe("apiClient — 기본 동작", () => {
   beforeEach(() => {
     useAuthStore.setState({ accessToken: "access-token", user: null });
+    useDemoApiLogStore.getState().clearEntries();
   });
 
   afterEach(() => {
     useAuthStore.setState({ accessToken: null, user: null });
+    useDemoApiLogStore.getState().clearEntries();
   });
 
   it("200 JSON 응답을 그대로 반환한다", async () => {
@@ -97,6 +101,38 @@ describe("apiClient — 기본 동작", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     const headers = init.headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer access-token");
+  });
+
+  it("demo auth state에서는 상대 endpoint를 /api/demo으로 보내고 로그를 기록한다", async () => {
+    useAuthStore.setState({
+      accessToken: DEMO_AUTH_PROFILES.demo_talent.accessToken,
+      user: DEMO_AUTH_PROFILES.demo_talent.user,
+    });
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(jsonResponse({ ok: true }));
+
+    await get("/profile/me");
+
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/demo/profile/me");
+    expect(useDemoApiLogStore.getState().entries).toMatchObject([
+      {
+        method: "GET",
+        path: "/api/demo/profile/me",
+        status: 200,
+      },
+    ]);
+  });
+
+  it("demo auth state에서도 절대 URL은 /api/demo으로 바꾸지 않는다", async () => {
+    useAuthStore.setState({
+      accessToken: DEMO_AUTH_PROFILES.demo_talent.accessToken,
+      user: DEMO_AUTH_PROFILES.demo_talent.user,
+    });
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(jsonResponse({ ok: true }));
+
+    await get("https://files.example.test/item.json");
+
+    expect(fetchMock.mock.calls[0][0]).toBe("https://files.example.test/item.json");
+    expect(useDemoApiLogStore.getState().entries).toEqual([]);
   });
 
   it("ApiError 타입이 export 되어 있다 (타입 체크용 sanity)", () => {
