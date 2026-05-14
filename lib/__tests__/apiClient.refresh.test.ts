@@ -38,6 +38,7 @@ function makeFetchMock(
 
 async function loadApiClient() {
   vi.resetModules();
+  vi.stubEnv("NEXT_PUBLIC_DEMO_ONLY_MODE", "false");
   const mod = await import("@/lib/apiClient");
   const storeMod = await import("@/store/authStore");
   return { mod, storeMod };
@@ -50,6 +51,7 @@ describe("apiClient — refresh 동시성·토큰 추출", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it("401 → refresh(Authorization 헤더) → 재시도 성공", async () => {

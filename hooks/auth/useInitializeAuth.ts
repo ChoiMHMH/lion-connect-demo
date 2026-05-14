@@ -5,7 +5,8 @@ import { recoverTokenAPI } from "@/lib/api/auth";
 import { useEffect } from "react";
 import { setAuthCookies, clearAuthCookies } from "@/actions/auth";
 import { clearDemoAuthCookies, setDemoAuthCookies } from "@/actions/demoAuth";
-import { getDemoAuthProfile, getDemoRoleByUser } from "@/constants/demoAuth";
+import { DEMO_ONLY_MODE, getDemoAuthProfile, getDemoRoleByUser } from "@/constants/demoAuth";
+import { ensureDefaultDemoAuth } from "@/lib/demoAuthClient";
 
 /**
  * 앱 초기화 훅 (토큰 복구)
@@ -34,6 +35,13 @@ export function useInitializeAuth() {
       try {
         // localStorage에서 user 먼저 확인 (Zustand persist가 이미 복구했을 것임)
         const { user, accessToken } = useAuthStore.getState();
+        const demoRole = getDemoRoleByUser(user);
+        const demoProfile = getDemoAuthProfile(demoRole);
+
+        if (DEMO_ONLY_MODE) {
+          await ensureDefaultDemoAuth();
+          return;
+        }
 
         // user가 없으면 로그인 상태가 아니므로 스킵
         if (!user) {
@@ -42,9 +50,6 @@ export function useInitializeAuth() {
           await clearDemoAuthCookies();
           return;
         }
-
-        const demoRole = getDemoRoleByUser(user);
-        const demoProfile = getDemoAuthProfile(demoRole);
 
         if (demoRole && demoProfile) {
           useAuthStore.getState().setAuth(demoProfile.accessToken, demoProfile.user);

@@ -8,7 +8,12 @@ import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
 import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 import DemoHeader from "@/components/headers/DemoHeader";
-import { getDemoRoleByUser, type DemoRole } from "@/constants/demoAuth";
+import {
+  DEFAULT_COMPANY_DEMO_ROLE,
+  DEMO_ONLY_MODE,
+  getDemoRoleByUser,
+  type DemoRole,
+} from "@/constants/demoAuth";
 
 type CompanyHeaderProps = {
   initialDemoRole?: DemoRole | null;
@@ -19,12 +24,14 @@ type CompanyHeaderProps = {
  * - 기업 사용자(COMPANY, JOINEDCOMPANY)를 위한 네비게이션
  * - 로고 클릭 시 "/" (기업 랜딩)으로 이동
  */
-export default function CompanyHeader({ initialDemoRole = null }: CompanyHeaderProps) {
-  const { user, _hasHydrated } = useAuthStore();
+export default function CompanyHeader({
+  initialDemoRole = DEMO_ONLY_MODE ? DEFAULT_COMPANY_DEMO_ROLE : null,
+}: CompanyHeaderProps) {
+  const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
   const storeDemoRole = getDemoRoleByUser(user);
-  const demoRole = storeDemoRole ?? (!_hasHydrated || !user ? initialDemoRole : null);
+  const demoRole = storeDemoRole ?? initialDemoRole;
 
   useEffect(() => {
     setMounted(true);

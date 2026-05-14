@@ -7,7 +7,12 @@ import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
 import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 import DemoHeader from "@/components/headers/DemoHeader";
-import { getDemoRoleByUser, type DemoRole } from "@/constants/demoAuth";
+import {
+  DEFAULT_ADMIN_DEMO_ROLE,
+  DEMO_ONLY_MODE,
+  getDemoRoleByUser,
+  type DemoRole,
+} from "@/constants/demoAuth";
 
 type AdminHeaderProps = {
   initialDemoRole?: DemoRole | null;
@@ -17,12 +22,14 @@ type AdminHeaderProps = {
  * 관리자 페이지용 헤더
  * - 로고와 인재용/기업용 네비게이션 표시
  */
-export default function AdminHeader({ initialDemoRole = null }: AdminHeaderProps) {
-  const { user, _hasHydrated } = useAuthStore();
+export default function AdminHeader({
+  initialDemoRole = DEMO_ONLY_MODE ? DEFAULT_ADMIN_DEMO_ROLE : null,
+}: AdminHeaderProps) {
+  const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
   const storeDemoRole = getDemoRoleByUser(user);
-  const demoRole = storeDemoRole ?? (!_hasHydrated || !user ? initialDemoRole : null);
+  const demoRole = storeDemoRole ?? initialDemoRole;
 
   useEffect(() => {
     setMounted(true);

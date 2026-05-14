@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { DEMO_AUTH_COOKIE, getDemoAuthProfile } from "@/constants/demoAuth";
+import { DEMO_AUTH_COOKIE, DEMO_ONLY_MODE, getDemoAuthProfile } from "@/constants/demoAuth";
 
 /**
  * 사용자 역할 (utils/rbac.ts와 동기화)
@@ -115,6 +115,11 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith(route)) {
       return NextResponse.redirect(new URL(`/dashboard${pathname}`, request.url));
     }
+  }
+
+  if (DEMO_ONLY_MODE) {
+    // Portfolio demo deployment: every screen should be directly reviewable.
+    return NextResponse.next();
   }
 
   // 1. 게스트 전용 경로 체크 (로그인한 사용자는 접근 불가)

@@ -1,6 +1,7 @@
 import CompanyHeader from "@/components/headers/CompanyHeader";
 import Footer from "@/components/Footer";
 import { getInitialDemoRole } from "@/lib/demoAuthServer";
+import { DEFAULT_COMPANY_DEMO_ROLE } from "@/constants/demoAuth";
 
 /**
  * 기업용 레이아웃
@@ -13,7 +14,7 @@ export default async function CompanyLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialDemoRole = await getInitialDemoRole();
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_COMPANY_DEMO_ROLE);
 
   return (
     <>
