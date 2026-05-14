@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { activateDemoAuth, clearDemoAuthState } from "@/lib/demoAuthClient";
+import { activateDemoAuth, clearDemoAuthState, ensureDefaultDemoAuth } from "@/lib/demoAuthClient";
 import { DEMO_AUTH_PROFILES } from "@/constants/demoAuth";
 import { useAuthStore } from "@/store/authStore";
 
@@ -36,7 +36,36 @@ describe("demoAuthClient", () => {
     });
   });
 
-  it("데모 초기화 시 demo auth 쿠키와 클라이언트 인증 상태를 함께 정리한다", async () => {
+  it("데모 전용 기본 인증은 기존 role이 없으면 기업 role을 주입한다", async () => {
+    const profile = await ensureDefaultDemoAuth();
+
+    expect(mockSetDemoAuthCookies).toHaveBeenCalledWith("demo_company");
+    expect(profile).toBe(DEMO_AUTH_PROFILES.demo_company);
+    expect(useAuthStore.getState()).toMatchObject({
+      accessToken: DEMO_AUTH_PROFILES.demo_company.accessToken,
+      user: DEMO_AUTH_PROFILES.demo_company.user,
+      isAuthenticated: true,
+      isInitialized: true,
+    });
+  });
+
+  it("데모 전용 기본 인증은 이미 선택된 demo role을 덮어쓰지 않는다", async () => {
+    useAuthStore
+      .getState()
+      .setAuth(DEMO_AUTH_PROFILES.demo_admin.accessToken, DEMO_AUTH_PROFILES.demo_admin.user);
+
+    const profile = await ensureDefaultDemoAuth();
+
+    expect(mockSetDemoAuthCookies).toHaveBeenCalledWith("demo_admin");
+    expect(profile).toBe(DEMO_AUTH_PROFILES.demo_admin);
+    expect(useAuthStore.getState()).toMatchObject({
+      accessToken: DEMO_AUTH_PROFILES.demo_admin.accessToken,
+      user: DEMO_AUTH_PROFILES.demo_admin.user,
+      isAuthenticated: true,
+    });
+  });
+
+  it("데모 초기화 시 demo-only 기본 기업 role로 즉시 복구한다", async () => {
     useAuthStore
       .getState()
       .setAuth(DEMO_AUTH_PROFILES.demo_talent.accessToken, DEMO_AUTH_PROFILES.demo_talent.user);
@@ -44,10 +73,11 @@ describe("demoAuthClient", () => {
     await clearDemoAuthState();
 
     expect(mockClearDemoAuthCookies).toHaveBeenCalledOnce();
+    expect(mockSetDemoAuthCookies).toHaveBeenCalledWith("demo_company");
     expect(useAuthStore.getState()).toMatchObject({
-      accessToken: null,
-      user: null,
-      isAuthenticated: false,
+      accessToken: DEMO_AUTH_PROFILES.demo_company.accessToken,
+      user: DEMO_AUTH_PROFILES.demo_company.user,
+      isAuthenticated: true,
       isInitialized: true,
     });
   });

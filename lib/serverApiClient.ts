@@ -12,14 +12,14 @@ import {
   HTTP_STATUS,
   resolveApiRequestUrl,
 } from "@/constants/api";
-import { DEMO_AUTH_COOKIE, getDemoAuthProfile } from "@/constants/demoAuth";
+import { DEMO_AUTH_COOKIE, DEMO_ONLY_MODE, getDemoAuthProfile } from "@/constants/demoAuth";
 
 // Server-side에서 환경변수 명시적으로 사용
 const getApiBaseUrl = async () => {
   const cookieStore = await cookies();
   const demoProfile = getDemoAuthProfile(cookieStore.get(DEMO_AUTH_COOKIE)?.value);
 
-  if (!demoProfile) {
+  if (!DEMO_ONLY_MODE && !demoProfile) {
     return process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.maple109.store/api";
   }
 

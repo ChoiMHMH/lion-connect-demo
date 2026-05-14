@@ -56,4 +56,15 @@ describe("role headers initial demo role", () => {
 
     expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_admin");
   });
+
+  it("데모 전용 모드에서는 initial role이 없어도 role별 기본 DemoHeader를 렌더링한다", () => {
+    const { unmount } = render(<CompanyHeader />);
+
+    expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_company");
+    unmount();
+
+    render(<MemberHeader />);
+
+    expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_talent");
+  });
 });

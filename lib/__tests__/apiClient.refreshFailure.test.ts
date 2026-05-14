@@ -27,6 +27,7 @@ function makeFetchMock(
 
 async function loadApiClient() {
   vi.resetModules();
+  vi.stubEnv("NEXT_PUBLIC_DEMO_ONLY_MODE", "false");
   const mod = await import("@/lib/apiClient");
   const storeMod = await import("@/store/authStore");
   return { mod, storeMod };
@@ -39,6 +40,7 @@ describe("apiClient — refresh 실패·재시도 엣지 케이스", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   it("refresh 엔드포인트가 401 반환하면 clearAuth 호출 + ApiError 전파", async () => {

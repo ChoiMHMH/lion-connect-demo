@@ -5,6 +5,12 @@ export const DEMO_ROLES = ["demo_talent", "demo_company", "demo_admin"] as const
 
 export type DemoRole = (typeof DEMO_ROLES)[number];
 
+export const DEMO_ONLY_MODE = process.env.NEXT_PUBLIC_DEMO_ONLY_MODE !== "false";
+export const DEFAULT_DEMO_ROLE: DemoRole = "demo_company";
+export const DEFAULT_COMPANY_DEMO_ROLE: DemoRole = "demo_company";
+export const DEFAULT_TALENT_DEMO_ROLE: DemoRole = "demo_talent";
+export const DEFAULT_ADMIN_DEMO_ROLE: DemoRole = "demo_admin";
+
 export type DemoAuthUser = {
   name: string;
   id: number;

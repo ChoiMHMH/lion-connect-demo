@@ -8,7 +8,12 @@ import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
 import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 import DemoHeader from "@/components/headers/DemoHeader";
-import { getDemoRoleByUser, type DemoRole } from "@/constants/demoAuth";
+import {
+  DEFAULT_TALENT_DEMO_ROLE,
+  DEMO_ONLY_MODE,
+  getDemoRoleByUser,
+  type DemoRole,
+} from "@/constants/demoAuth";
 
 type MemberHeaderProps = {
   initialDemoRole?: DemoRole | null;
@@ -19,12 +24,14 @@ type MemberHeaderProps = {
  * - 인재 사용자(USER, JOINEDUSER)를 위한 네비게이션
  * - 로고 클릭 시 "/dashboard" (인재 랜딩)으로 이동
  */
-export default function MemberHeader({ initialDemoRole = null }: MemberHeaderProps) {
-  const { user, _hasHydrated } = useAuthStore();
+export default function MemberHeader({
+  initialDemoRole = DEMO_ONLY_MODE ? DEFAULT_TALENT_DEMO_ROLE : null,
+}: MemberHeaderProps) {
+  const { user } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
   const storeDemoRole = getDemoRoleByUser(user);
-  const demoRole = storeDemoRole ?? (!_hasHydrated || !user ? initialDemoRole : null);
+  const demoRole = storeDemoRole ?? initialDemoRole;
 
   useEffect(() => {
     setMounted(true);

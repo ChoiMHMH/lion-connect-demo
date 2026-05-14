@@ -11,10 +11,10 @@ describe("DemoApiLogPanel", () => {
     useDemoApiLogStore.getState().clearEntries();
   });
 
-  it("demo mode가 아니면 렌더링하지 않는다", () => {
+  it("demo-only mode에서는 인증 상태가 비어 있어도 렌더링한다", () => {
     render(<DemoApiLogPanel />);
 
-    expect(screen.queryByText("Demo API Log")).not.toBeInTheDocument();
+    expect(screen.getByText("Demo API Log")).toBeVisible();
   });
 
   it("demo mode에서 최근 API 호출을 접이식 패널에 표시한다", () => {

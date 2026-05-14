@@ -2,6 +2,7 @@ import MemberHeader from "@/components/headers/MemberHeader";
 import Footer from "@/components/Footer";
 import { dashboardMetadata } from "@/app/(company)/seo/metadata";
 import { getInitialDemoRole } from "@/lib/demoAuthServer";
+import { DEFAULT_TALENT_DEMO_ROLE } from "@/constants/demoAuth";
 
 export const metadata = dashboardMetadata;
 
@@ -16,7 +17,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialDemoRole = await getInitialDemoRole();
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_TALENT_DEMO_ROLE);
 
   return (
     <>

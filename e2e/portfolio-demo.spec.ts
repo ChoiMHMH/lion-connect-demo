@@ -9,17 +9,16 @@ async function expectDemoHeader(page: Page, activeRole: string) {
 }
 
 test.describe("portfolio demo mode", () => {
-  test("shows the portfolio guide and intercepts auth CTA", async ({ page }) => {
+  test("shows the portfolio guide and keeps the default company demo header", async ({ page }) => {
     await page.goto("/");
 
     await expect(page.getByRole("dialog", { name: "포트폴리오 데모 안내" })).toBeVisible();
     await page.getByRole("button", { name: "계속 랜딩 보기" }).click();
     await expect(page.getByRole("dialog", { name: "포트폴리오 데모 안내" })).toBeHidden();
+    await expectDemoHeader(page, "기업 데모");
 
-    await page.getByRole("button", { name: "로그인/회원가입" }).click();
-    await expect(page.getByRole("dialog", { name: "서버 종료 안내" })).toBeVisible();
-
-    await page.getByRole("button", { name: "데모 페이지로 이동" }).click();
+    await expect(page.getByRole("button", { name: "로그인/회원가입" })).toHaveCount(0);
+    await page.getByRole("link", { name: "데모 허브" }).click();
     await expect(page).toHaveURL(/\/demo$/);
     await expect(page.getByRole("heading", { name: "포트폴리오 검토용 데모 허브" })).toBeVisible();
   });

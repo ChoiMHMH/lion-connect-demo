@@ -3,6 +3,7 @@ import AdminHeader from "@/components/headers/AdminHeader";
 import { AdminSidebar } from "./_components/AdminSidebar";
 import { Metadata } from "next";
 import { getInitialDemoRole } from "@/lib/demoAuthServer";
+import { DEFAULT_ADMIN_DEMO_ROLE } from "@/constants/demoAuth";
 
 export const metadata: Metadata = {
   robots: {
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const initialDemoRole = await getInitialDemoRole();
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_ADMIN_DEMO_ROLE);
 
   return (
     <div className="flex flex-col min-h-screen">
