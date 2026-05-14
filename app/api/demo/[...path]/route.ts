@@ -1,11 +1,11 @@
 import { handleDemoApiRequest } from "@/lib/demo/mockApi";
 
 type DemoRouteContext = {
-  params: Promise<{ path?: string[] }> | { path?: string[] };
+  params: Promise<{ path?: string[] }>;
 };
 
 async function resolvePathSegments(context: DemoRouteContext) {
-  const params = await Promise.resolve(context.params);
+  const params = await context.params;
   return params.path ?? [];
 }
 

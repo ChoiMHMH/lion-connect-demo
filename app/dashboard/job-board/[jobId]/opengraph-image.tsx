@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { fetchPublicJobPosting } from "@/lib/api/jobPostings";
+import { normalizeAbsoluteUrl } from "@/lib/normalizeUrl";
+import type { JobDetailResponse } from "@/types/job";
 
 export const runtime = "edge";
 export const alt = "채용 공고";
@@ -9,15 +10,35 @@ export const size = {
 };
 export const contentType = "image/png";
 
+type OpenGraphJob = Pick<
+  JobDetailResponse,
+  "companyName" | "employmentType" | "jobRoleName" | "title"
+>;
+
+async function fetchOpenGraphJob(jobId: string): Promise<OpenGraphJob> {
+  const baseUrl = normalizeAbsoluteUrl(
+    process.env.NEXT_PUBLIC_API_BASE_URL,
+    "https://api.maple109.store/api"
+  );
+  const response = await fetch(`${baseUrl}/job-postings/${encodeURIComponent(jobId)}`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch job posting for opengraph image");
+  }
+
+  return response.json() as Promise<OpenGraphJob>;
+}
+
 export default async function Image({ params }: { params: Promise<{ jobId: string }> }) {
   const { jobId } = await params;
 
   try {
-    const job = await fetchPublicJobPosting(jobId);
+    const job = await fetchOpenGraphJob(jobId);
 
-    // Pretendard 폰트 로드
     const fontData = await fetch(
-      new URL("../../../../public/fonts/PretendardVariable.woff2", import.meta.url)
+      new URL("../../../../public/fonts/SUITE-Regular.woff2", import.meta.url)
     ).then((res) => res.arrayBuffer());
 
     return new ImageResponse(
@@ -59,6 +80,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
               style={{
                 fontSize: "32px",
                 fontWeight: "bold",
+                fontFamily: "SUITE",
                 color: "#FF6B00",
               }}
             >
@@ -70,6 +92,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
           <div
             style={{
               fontSize: "28px",
+              fontFamily: "SUITE",
               color: "#666",
               marginBottom: "16px",
               zIndex: 1,
@@ -83,6 +106,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
             style={{
               fontSize: "56px",
               fontWeight: "bold",
+              fontFamily: "SUITE",
               color: "#1A1A1A",
               lineHeight: 1.2,
               marginBottom: "24px",
@@ -113,6 +137,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
                 padding: "12px 24px",
                 borderRadius: "8px",
                 fontSize: "24px",
+                fontFamily: "SUITE",
               }}
             >
               {job.jobRoleName}
@@ -124,6 +149,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
                 padding: "12px 24px",
                 borderRadius: "8px",
                 fontSize: "24px",
+                fontFamily: "SUITE",
               }}
             >
               {job.employmentType === "FULL_TIME" ? "정규직" : "인턴"}
@@ -137,6 +163,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
               bottom: "60px",
               right: "80px",
               fontSize: "20px",
+              fontFamily: "SUITE",
               color: "#999",
             }}
           >
@@ -148,7 +175,7 @@ export default async function Image({ params }: { params: Promise<{ jobId: strin
         ...size,
         fonts: [
           {
-            name: "Pretendard",
+            name: "SUITE",
             data: fontData,
             style: "normal",
             weight: 400,

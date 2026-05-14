@@ -1,4 +1,10 @@
 import { Metadata } from "next";
+import { normalizeAbsoluteUrl } from "@/lib/normalizeUrl";
+
+const siteUrl = normalizeAbsoluteUrl(
+  process.env.NEXT_PUBLIC_BASE_URL,
+  "https://like-lion.netlify.app"
+);
 
 /**
  * SEO 상수 - 프로젝트 전체에서 사용되는 메타데이터
@@ -26,7 +32,7 @@ export const SEO = {
     "테크 인재",
     "개발자 구인",
   ] as string[],
-  url: process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app",
+  url: siteUrl,
   siteName: "라이언 커넥트",
   locale: "ko_KR" as const,
   type: "website" as const,
@@ -37,7 +43,7 @@ export const SEO = {
   organization: {
     name: "멋쟁이사자처럼",
     foundingDate: "2024",
-    logo: `${process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app"}/logo.png`,
+    logo: `${siteUrl}/logo.png`,
     email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "contact@lionconnect.com",
     socialLinks: [
       "https://www.instagram.com/likelion.official",

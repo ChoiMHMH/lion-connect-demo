@@ -1,8 +1,11 @@
 import { MetadataRoute } from "next";
+import { normalizeAbsoluteUrl } from "@/lib/normalizeUrl";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app";
+  const baseUrl = normalizeAbsoluteUrl(
+    process.env.NEXT_PUBLIC_BASE_URL,
+    "https://like-lion.netlify.app"
+  );
 
   return {
     rules: [
