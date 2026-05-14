@@ -242,6 +242,15 @@ export function getDemoTalent(profileId: number): TalentDetailResponse {
   return clone(getTalentDetail(profileId));
 }
 
+export function updateDemoTalentThumbnail(profileId: number, thumbnailUrl: string) {
+  store.talents = store.talents.map((talent) =>
+    talent.id === profileId ? { ...talent, thumbnailUrl } : talent
+  );
+  store.talentDetails = store.talentDetails.map((talent) =>
+    talent.id === profileId ? { ...talent, thumbnailUrl, updatedAt: DEMO_ROLE_NOW } : talent
+  );
+}
+
 export function listDemoApplicants(searchParams: URLSearchParams): CompanyApplicantsResponse {
   const { page, size } = pageParams(searchParams, 10);
   return paged(store.applicants, page, size);

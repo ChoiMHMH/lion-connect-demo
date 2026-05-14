@@ -59,6 +59,7 @@ import {
   setDemoAdminRole,
   setDemoAdminUserLocked,
   setDemoCompanyLocked,
+  updateDemoTalentThumbnail,
   updateDemoInquiryStatus,
 } from "@/lib/demo/roleStore";
 import type {
@@ -185,18 +186,17 @@ async function handleProfileAssetRoutes(context: DemoHandlerContext, profileId: 
       );
     }
     if (segments.length === 3 && method === "POST") {
-      return jsonResponse(
-        completeDemoThumbnailUpload(
-          profileId,
-          await readJson<{
-            objectKey: string;
-            originalFilename: string;
-            contentType: string;
-            fileSize: number;
-          }>(request)
-        ),
-        201
+      const result = completeDemoThumbnailUpload(
+        profileId,
+        await readJson<{
+          objectKey: string;
+          originalFilename: string;
+          contentType: string;
+          fileSize: number;
+        }>(request)
       );
+      updateDemoTalentThumbnail(profileId, result.fileUrl);
+      return jsonResponse(result, 201);
     }
   }
 

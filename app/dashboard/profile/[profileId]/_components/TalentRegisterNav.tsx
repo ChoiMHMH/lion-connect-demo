@@ -61,7 +61,8 @@ export default function TalentRegisterNav({
   return (
     <nav
       className={cn(
-        "max-w-[1440px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between mt-8",
+        "sticky top-6 z-30 max-w-[1440px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between mt-8",
+        "bg-bg-page/95 backdrop-blur supports-[backdrop-filter]:bg-bg-page/80",
         className
       )}
       {...props}
