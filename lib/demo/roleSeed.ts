@@ -1,5 +1,5 @@
 import type { AdminCompaniesResponse, AdminUsersResponse } from "@/types/admin";
-import type { PublicJobPosting } from "@/types/company-job-posting";
+import type { JobPostingStatus, PublicJobPosting } from "@/types/company-job-posting";
 import type { InquiryListResponse } from "@/types/inquiry";
 import type { ApplyJobResponse, CompanyApplicant, JobApplication } from "@/types/jobApplication";
 import type { JobDetailResponse } from "@/types/job";
@@ -299,6 +299,7 @@ export type DemoRoleSeed = {
   adminUsers: AdminUsersResponse["content"];
   adminCompanies: AdminCompaniesResponse["content"];
   inquiries: InquiryListResponse["content"];
+  jobStatuses: Record<number, JobPostingStatus>;
   nextApplicationId: number;
 };
 
@@ -312,6 +313,10 @@ export const demoRoleSeed: DemoRoleSeed = {
   adminUsers: demoAdminUsers,
   adminCompanies: demoAdminCompanies,
   inquiries: demoInquiries,
+  jobStatuses: {
+    9001: "PUBLISHED",
+    9002: "DRAFT",
+  },
   nextApplicationId: 8002,
 };
 

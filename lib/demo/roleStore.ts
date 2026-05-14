@@ -1,10 +1,15 @@
 import { demoRoleSeed, DEMO_ROLE_NOW, type DemoRoleSeed } from "@/lib/demo/roleSeed";
+import { findJobRoleById } from "@/constants/jobMapping";
 import type {
   AdminCompaniesResponse,
   AdminUsersResponse,
   ProfileLockResponse,
 } from "@/types/admin";
-import type { PublicJobPosting, PublicJobPostingsResponse } from "@/types/company-job-posting";
+import type {
+  JobPostingStatus,
+  PublicJobPosting,
+  PublicJobPostingsResponse,
+} from "@/types/company-job-posting";
 import type {
   CreateInquiryRequest,
   Inquiry,
@@ -17,7 +22,17 @@ import type {
   JobApplication,
   JobApplicationsResponse,
 } from "@/types/jobApplication";
-import type { Job } from "@/types/job";
+import type {
+  ImageUploadCompleteRequest,
+  ImageUploadCompleteResponse,
+  EmploymentType,
+  Job,
+  JobImageMetadata,
+  JobPostingRequest,
+  JobPostingResponse,
+  PresignBulkRequest,
+  PresignBulkResponse,
+} from "@/types/job";
 import type { TalentDetailResponse } from "@/types/talent";
 import type { TalentListItem, TalentListResponse } from "@/lib/api/talents";
 
@@ -83,6 +98,63 @@ export function resetDemoRoleStore() {
   store = clone(demoRoleSeed);
 }
 
+function now() {
+  return new Date().toISOString();
+}
+
+function getJobStatus(jobId: number): JobPostingStatus {
+  return store.jobStatuses[jobId] ?? "DRAFT";
+}
+
+function setJobStatus(jobId: number, status: JobPostingStatus) {
+  store.jobStatuses[jobId] = status;
+}
+
+function getJobRoleNames(jobRoleId: number) {
+  const result = findJobRoleById(jobRoleId);
+  return {
+    jobGroupName: result?.group.name ?? "개발",
+    jobRoleName: result?.role.name ?? `직무 ${jobRoleId}`,
+  };
+}
+
+function toSupportedEmploymentType(
+  employmentType: PublicJobPosting["employmentType"]
+): EmploymentType {
+  return employmentType === "CONTRACT" ? "INTERN" : employmentType;
+}
+
+function fileUrlForObjectKey(objectKey: string) {
+  return `/api/demo/uploads/${objectKey}`;
+}
+
+function normalizeJobImages(images: JobImageMetadata[]): JobImageMetadata[] {
+  return images.map((image, index) => {
+    const fileUrl = image.fileUrl ?? image.url ?? fileUrlForObjectKey(image.objectKey);
+    return {
+      ...image,
+      sortOrder: image.sortOrder ?? index + 1,
+      url: fileUrl,
+      fileUrl,
+    };
+  });
+}
+
+function toJobPostingResponse(jobId: number): JobPostingResponse {
+  const publicJob = getPublicJob(jobId);
+  return {
+    jobPostingId: publicJob.jobPostingId,
+    title: publicJob.title,
+    jobGroupName: publicJob.jobGroupName,
+    jobRoleName: publicJob.jobRoleName,
+    employmentType: toSupportedEmploymentType(publicJob.employmentType),
+    status: getJobStatus(jobId) === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+    publishedAt: publicJob.publishedAt,
+    createdAt: publicJob.publishedAt,
+    totalApplicationsCount: store.applicants.length,
+  };
+}
+
 function getJobDetail(jobId: number) {
   const job = store.jobDetails.find((item) => item.jobPostingId === jobId);
   if (!job) {
@@ -124,7 +196,7 @@ function toCompanyJob(job: PublicJobPosting): Job {
     location: detail.workplace,
     images: [],
     existingImages: detail.images,
-    status: job.jobPostingId === 9001 ? "PUBLISHED" : "DRAFT",
+    status: getJobStatus(job.jobPostingId),
     createdAt: job.publishedAt,
     updatedAt: job.publishedAt,
     imageUrls: job.thumbnailImageUrl ? [job.thumbnailImageUrl] : [],
@@ -151,7 +223,7 @@ export function listDemoCompanyJobPostings(searchParams: URLSearchParams) {
       title: job.title,
       jobGroupName: job.jobGroupName,
       jobRoleName: job.jobRoleName,
-      status: job.jobPostingId === 9001 ? ("PUBLISHED" as const) : ("DRAFT" as const),
+      status: getJobStatus(job.jobPostingId),
       publishedAt: job.publishedAt,
       createdAt: job.publishedAt,
       totalApplicationsCount: store.applicants.length,
@@ -168,6 +240,155 @@ export function getDemoPublicJobPosting(jobId: number) {
 
 export function getDemoCompanyJobPosting(jobId: number) {
   return clone(getJobDetail(jobId));
+}
+
+export function buildDemoCompanyJobImagePresigns(body: PresignBulkRequest): PresignBulkResponse {
+  return {
+    uploads: body.files.map((file) => {
+      const safeFilename =
+        file.originalFilename.replace(/[^a-zA-Z0-9._-]/g, "-") || "job-image.png";
+      const objectKey = `demo/company-job-postings/${safeFilename}`;
+      const fileUrl = fileUrlForObjectKey(objectKey);
+      return {
+        originalFilename: file.originalFilename,
+        contentType: file.contentType,
+        objectKey,
+        upload: {
+          uploadUrl: fileUrl,
+          fileUrl,
+          objectKey,
+        },
+        fileUrl,
+      };
+    }),
+  };
+}
+
+export function completeDemoCompanyJobImageUpload(
+  body: ImageUploadCompleteRequest
+): ImageUploadCompleteResponse {
+  return {
+    objectKey: body.objectKey,
+    fileUrl: fileUrlForObjectKey(body.objectKey),
+  };
+}
+
+export function createDemoCompanyJobPosting(body: JobPostingRequest): JobPostingResponse {
+  const jobPostingId = Math.max(0, ...store.jobs.map((job) => job.jobPostingId)) + 1;
+  const timestamp = now();
+  const { jobGroupName, jobRoleName } = getJobRoleNames(body.jobRoleId);
+  const images = normalizeJobImages(body.images);
+  const thumbnailImageUrl = images[0]?.fileUrl ?? null;
+  const publicJob: PublicJobPosting = {
+    jobPostingId,
+    title: body.title,
+    companyName: "데모커머스",
+    jobGroupName,
+    jobRoleName,
+    employmentType: body.employmentType,
+    workplaceShort: body.workplace,
+    thumbnailImageKey: images[0]?.objectKey ?? null,
+    thumbnailImageUrl,
+    publishedAt: timestamp,
+  };
+  const detail = {
+    jobPostingId,
+    title: body.title,
+    employmentType: body.employmentType,
+    jobDescription: body.jobDescription,
+    mainTasks: body.mainTasks,
+    requirements: body.requirements,
+    preferred: body.preferred,
+    benefits: body.benefits,
+    hiringProcess: body.hiringProcess,
+    workplace: body.workplace,
+    companyName: publicJob.companyName,
+    courseName: "멋쟁이사자처럼 프론트엔드 스쿨",
+    courseGeneration: 13,
+    jobGroupName,
+    jobRoleId: body.jobRoleId,
+    jobRoleName,
+    publishedAt: timestamp,
+    images,
+    myJobApplicationId: null,
+    myJobApplicationStatus: null,
+    applied: false,
+  };
+
+  store.jobs = [publicJob, ...store.jobs];
+  store.jobDetails = [detail, ...store.jobDetails];
+  setJobStatus(jobPostingId, body.status);
+
+  return toJobPostingResponse(jobPostingId);
+}
+
+export function updateDemoCompanyJobPosting(
+  jobId: number,
+  body: JobPostingRequest
+): JobPostingResponse {
+  getPublicJob(jobId);
+  const { jobGroupName, jobRoleName } = getJobRoleNames(body.jobRoleId);
+  const images = normalizeJobImages(body.images);
+  const thumbnailImageUrl = images[0]?.fileUrl ?? null;
+
+  store.jobs = store.jobs.map((job) =>
+    job.jobPostingId === jobId
+      ? {
+          ...job,
+          title: body.title,
+          jobGroupName,
+          jobRoleName,
+          employmentType: body.employmentType,
+          workplaceShort: body.workplace,
+          thumbnailImageKey: images[0]?.objectKey ?? null,
+          thumbnailImageUrl,
+        }
+      : job
+  );
+  store.jobDetails = store.jobDetails.map((job) =>
+    job.jobPostingId === jobId
+      ? {
+          ...job,
+          title: body.title,
+          employmentType: body.employmentType,
+          jobDescription: body.jobDescription,
+          mainTasks: body.mainTasks,
+          requirements: body.requirements,
+          preferred: body.preferred,
+          benefits: body.benefits,
+          hiringProcess: body.hiringProcess,
+          workplace: body.workplace,
+          jobGroupName,
+          jobRoleId: body.jobRoleId,
+          jobRoleName,
+          images,
+        }
+      : job
+  );
+
+  return toJobPostingResponse(jobId);
+}
+
+export function deleteDemoCompanyJobPosting(jobId: number) {
+  getPublicJob(jobId);
+  store.jobs = store.jobs.filter((job) => job.jobPostingId !== jobId);
+  store.jobDetails = store.jobDetails.filter((job) => job.jobPostingId !== jobId);
+  store.applications = store.applications.filter(
+    (application) => application.jobPostingId !== jobId
+  );
+  delete store.jobStatuses[jobId];
+}
+
+export function publishDemoCompanyJobPosting(jobId: number): JobPostingResponse {
+  getPublicJob(jobId);
+  setJobStatus(jobId, "PUBLISHED");
+  return toJobPostingResponse(jobId);
+}
+
+export function unpublishDemoCompanyJobPosting(jobId: number): JobPostingResponse {
+  getPublicJob(jobId);
+  setJobStatus(jobId, "DRAFT");
+  return toJobPostingResponse(jobId);
 }
 
 export function listDemoCompanyJobFormItems() {
