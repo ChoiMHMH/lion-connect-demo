@@ -1,8 +1,12 @@
 import { MetadataRoute } from "next";
 import { fetchPublicJobPostingsServer } from "@/lib/api/serverJobPostings";
+import { normalizeAbsoluteUrl } from "@/lib/normalizeUrl";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://like-lion.netlify.app";
+  const baseUrl = normalizeAbsoluteUrl(
+    process.env.NEXT_PUBLIC_BASE_URL,
+    "https://like-lion.netlify.app"
+  );
 
   // 1. 정적 페이지
   const staticRoutes: MetadataRoute.Sitemap = [

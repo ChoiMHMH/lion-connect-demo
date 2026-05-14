@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { normalizeAbsoluteUrl } from "@/lib/normalizeUrl";
 import type { JobDetailResponse } from "@/types/job";
 
 export const runtime = "edge";
@@ -15,7 +16,10 @@ type OpenGraphJob = Pick<
 >;
 
 async function fetchOpenGraphJob(jobId: string): Promise<OpenGraphJob> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.maple109.store/api";
+  const baseUrl = normalizeAbsoluteUrl(
+    process.env.NEXT_PUBLIC_API_BASE_URL,
+    "https://api.maple109.store/api"
+  );
   const response = await fetch(`${baseUrl}/job-postings/${encodeURIComponent(jobId)}`, {
     cache: "no-store",
   });
