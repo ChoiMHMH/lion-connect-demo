@@ -1,6 +1,7 @@
 import MemberHeader from "@/components/headers/MemberHeader";
 import Footer from "@/components/Footer";
 import { dashboardMetadata } from "@/app/(company)/seo/metadata";
+import { getInitialDemoRole } from "@/lib/demoAuthServer";
 
 export const metadata = dashboardMetadata;
 
@@ -10,14 +11,16 @@ export const metadata = dashboardMetadata;
  * - Footer: 공통 푸터
  * - pt-20: Header의 고정 높이만큼 상단 패딩
  */
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialDemoRole = await getInitialDemoRole();
+
   return (
     <>
-      <MemberHeader />
+      <MemberHeader initialDemoRole={initialDemoRole} />
       <div className="pt-20">{children}</div>
       <Footer />
     </>

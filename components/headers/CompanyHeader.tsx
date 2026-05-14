@@ -8,18 +8,23 @@ import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useLogout";
 import DemoAuthCtaButton from "@/components/buttons/DemoAuthCtaButton";
 import DemoHeader from "@/components/headers/DemoHeader";
-import { getDemoRoleByUser } from "@/constants/demoAuth";
+import { getDemoRoleByUser, type DemoRole } from "@/constants/demoAuth";
+
+type CompanyHeaderProps = {
+  initialDemoRole?: DemoRole | null;
+};
 
 /**
  * 기업용 헤더 컴포넌트
  * - 기업 사용자(COMPANY, JOINEDCOMPANY)를 위한 네비게이션
  * - 로고 클릭 시 "/" (기업 랜딩)으로 이동
  */
-export default function CompanyHeader() {
-  const { user } = useAuthStore();
+export default function CompanyHeader({ initialDemoRole = null }: CompanyHeaderProps) {
+  const { user, _hasHydrated } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
-  const demoRole = getDemoRoleByUser(user);
+  const storeDemoRole = getDemoRoleByUser(user);
+  const demoRole = storeDemoRole ?? (!_hasHydrated || !user ? initialDemoRole : null);
 
   useEffect(() => {
     setMounted(true);
