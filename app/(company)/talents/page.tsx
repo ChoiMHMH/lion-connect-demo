@@ -23,9 +23,7 @@ const EXPERIENCE_BADGE_BY_NAME: Record<string, { label: string; type: BadgeType 
   전공자: { label: "전공자", type: "major" },
 };
 
-export function mapExperiencesToBadges(
-  experiences?: string[]
-): { label: string; type: BadgeType }[] {
+function mapExperiencesToBadges(experiences?: string[]): { label: string; type: BadgeType }[] {
   if (!experiences || experiences.length === 0) return [];
 
   return experiences
