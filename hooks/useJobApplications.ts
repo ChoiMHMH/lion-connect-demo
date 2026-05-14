@@ -3,7 +3,11 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyJobApplications, applyToJob, cancelJobApplication } from "@/services/jobApplicationService";
+import {
+  getMyJobApplications,
+  applyToJob,
+  cancelJobApplication,
+} from "@/services/jobApplicationService";
 import type { JobApplicationsRequest, ApplyJobRequest } from "@/types/jobApplication";
 
 /**
@@ -31,6 +35,9 @@ export function useApplyToJob() {
       queryClient.invalidateQueries({ queryKey: ["jobApplications"] });
       // 해당 채용공고 쿼리 무효화 (applied 상태 업데이트를 위해)
       queryClient.invalidateQueries({ queryKey: ["jobPosting", variables.jobId.toString()] });
+      queryClient.invalidateQueries({
+        queryKey: ["publicJobPosting", variables.jobId.toString()],
+      });
     },
   });
 }
