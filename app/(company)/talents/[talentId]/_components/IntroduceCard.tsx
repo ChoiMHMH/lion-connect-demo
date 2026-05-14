@@ -126,12 +126,9 @@ export default function IntroduceCard(props: IntroduceCardProps) {
           </div>
           {/* 리스팅 페이지에서만 상세보기 버튼 표시 */}
           {showDetailButton && href && (
-            <Link
-              href={href}
-              className="w-40 px-8 py-2 bg-orange-600 rounded-lg inline-flex justify-center items-center gap-2.5 hover:bg-orange-700 transition"
-            >
+            <span className="w-40 px-8 py-2 bg-orange-600 rounded-lg inline-flex justify-center items-center gap-2.5 hover:bg-orange-700 transition">
               <span className="text-white text-base font-bold">{ctaLabel}</span>
-            </Link>
+            </span>
           )}
         </div>
 
@@ -247,9 +244,12 @@ export default function IntroduceCard(props: IntroduceCardProps) {
     </section>
   );
 
-  // showDetailButton이 true면 버튼이 있으므로 Link로 감싸지 않음
-  return href && !showDetailButton ? (
-    <Link href={href} aria-label={`${name} 상세 페이지로 이동`} className="block rounded-2xl">
+  return href ? (
+    <Link
+      href={href}
+      aria-label={`${name} 상세 페이지로 이동`}
+      className="block cursor-pointer rounded-2xl"
+    >
       {CardBody}
     </Link>
   ) : (
