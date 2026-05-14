@@ -11,15 +11,15 @@ describe("DemoHubPage", () => {
     render(<DemoHubPage />);
 
     expect(screen.getByRole("heading", { name: "포트폴리오 검토용 데모 허브" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "인재 데모 시작" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "인재용 페이지 바로가기" })).toHaveAttribute(
       "href",
       "/demo/enter/talent"
     );
-    expect(screen.getByRole("link", { name: "기업 데모 시작" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "기업용 페이지 바로가기" })).toHaveAttribute(
       "href",
       "/demo/enter/company"
     );
-    expect(screen.getByRole("link", { name: "관리자 데모 시작" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "관리자페이지 바로가기" })).toHaveAttribute(
       "href",
       "/demo/enter/admin"
     );

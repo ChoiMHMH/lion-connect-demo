@@ -37,6 +37,7 @@ function mapToIntroduceCardProps(data: TalentDetailResponse) {
   return {
     name: data.name,
     profileImageUrl: data.thumbnailUrl,
+    thumbnailUrl: data.thumbnailUrl,
     experiences: data.experiences, // experiences 직접 전달
     tendencies: data.tendencies,
     phoneNumber: data.phoneNumber || null,

@@ -263,6 +263,7 @@
   }
   html {
     scrollbar-gutter: stable;
+    overflow-y: scroll;
   }
   body {
     font-family: var(--font-body);
@@ -270,6 +271,27 @@
     color: var(--text-primary);
 
     @apply bg-background text-foreground;
+  }
+  body[data-scroll-locked] {
+    --removed-body-scroll-bar-size: 0px !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    right: 0 !important;
+    overflow-y: scroll !important;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+  .right-scroll-bar-position {
+    right: 0 !important;
+  }
+  .width-before-scroll-bar {
+    margin-right: 0 !important;
   }
 }
 

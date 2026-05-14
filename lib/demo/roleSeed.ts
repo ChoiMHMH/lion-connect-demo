@@ -1,5 +1,5 @@
 import type { AdminCompaniesResponse, AdminUsersResponse } from "@/types/admin";
-import type { PublicJobPosting } from "@/types/company-job-posting";
+import type { JobPostingStatus, PublicJobPosting } from "@/types/company-job-posting";
 import type { InquiryListResponse } from "@/types/inquiry";
 import type { ApplyJobResponse, CompanyApplicant, JobApplication } from "@/types/jobApplication";
 import type { JobDetailResponse } from "@/types/job";
@@ -18,7 +18,7 @@ export const demoPublicJobs: PublicJobPosting[] = [
     employmentType: "FULL_TIME",
     workplaceShort: "서울 강남",
     thumbnailImageKey: null,
-    thumbnailImageUrl: "/images/companyLogo.png",
+    thumbnailImageUrl: "/demo/demo-cover.png",
     publishedAt: DEMO_ROLE_NOW,
   },
   {
@@ -30,7 +30,7 @@ export const demoPublicJobs: PublicJobPosting[] = [
     employmentType: "INTERN",
     workplaceShort: "서울 성수",
     thumbnailImageKey: null,
-    thumbnailImageUrl: "/images/companyLogo.png",
+    thumbnailImageUrl: "/demo/demo-cover2.png",
     publishedAt: DEMO_ROLE_NOW,
   },
 ];
@@ -56,13 +56,13 @@ export const demoJobDetails: JobDetailResponse[] = [
     publishedAt: DEMO_ROLE_NOW,
     images: [
       {
-        objectKey: "demo/job-9001/cover.png",
+        objectKey: "demo/demo-cover.png",
         contentType: "image/png",
         fileSize: 1024,
-        originalFilename: "cover.png",
+        originalFilename: "demo-cover.png",
         sortOrder: 1,
-        url: "/images/companyLogo.png",
-        fileUrl: "/images/companyLogo.png",
+        url: "/demo/demo-cover.png",
+        fileUrl: "/demo/demo-cover.png",
       },
     ],
     myJobApplicationId: 8001,
@@ -87,7 +87,17 @@ export const demoJobDetails: JobDetailResponse[] = [
     jobRoleId: 1,
     jobRoleName: "프론트엔드",
     publishedAt: DEMO_ROLE_NOW,
-    images: [],
+    images: [
+      {
+        objectKey: "demo/demo-cover2.png",
+        contentType: "image/png",
+        fileSize: 1024,
+        originalFilename: "demo-cover2.png",
+        sortOrder: 1,
+        url: "/demo/demo-cover2.png",
+        fileUrl: "/demo/demo-cover2.png",
+      },
+    ],
     myJobApplicationId: null,
     myJobApplicationStatus: null,
     applied: false,
@@ -289,6 +299,7 @@ export type DemoRoleSeed = {
   adminUsers: AdminUsersResponse["content"];
   adminCompanies: AdminCompaniesResponse["content"];
   inquiries: InquiryListResponse["content"];
+  jobStatuses: Record<number, JobPostingStatus>;
   nextApplicationId: number;
 };
 
@@ -302,6 +313,10 @@ export const demoRoleSeed: DemoRoleSeed = {
   adminUsers: demoAdminUsers,
   adminCompanies: demoAdminCompanies,
   inquiries: demoInquiries,
+  jobStatuses: {
+    9001: "PUBLISHED",
+    9002: "DRAFT",
+  },
   nextApplicationId: 8002,
 };
 

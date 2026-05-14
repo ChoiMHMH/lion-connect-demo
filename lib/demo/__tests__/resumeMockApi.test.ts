@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { handleDemoApiRequest } from "@/lib/demo/mockApi";
 import { resetDemoResumeStore } from "@/lib/demo/resumeStore";
+import { resetDemoRoleStore } from "@/lib/demo/roleStore";
 
 async function callDemoApi(method: string, path: string, body?: unknown) {
   const request = new Request(`http://localhost/api/demo${path}`, {
@@ -24,6 +25,7 @@ async function callDemoApi(method: string, path: string, body?: unknown) {
 describe("demo resume mock API", () => {
   beforeEach(() => {
     resetDemoResumeStore();
+    resetDemoRoleStore();
   });
 
   it("프로필 목록과 단일 이력서 작성 데이터를 기존 endpoint path로 조회한다", async () => {
@@ -141,6 +143,38 @@ describe("demo resume mock API", () => {
       expect.objectContaining({
         originalFilename: "portfolio.pdf",
         fileUrl: "/api/demo/uploads/demo/profile-1/portfolio.pdf",
+      })
+    );
+  });
+
+  it("thumbnail upload complete는 기업 데모 인재 목록과 상세 썸네일에 반영한다", async () => {
+    const presigned = await callDemoApi("POST", "/profile/1/thumbnail/presign", {
+      originalFilename: "profile.png",
+      contentType: "image/png",
+    });
+    const completed = await callDemoApi("POST", "/profile/1/thumbnail", {
+      objectKey: presigned.body.objectKey,
+      originalFilename: "profile.png",
+      contentType: "image/png",
+      fileSize: 4321,
+    });
+    const talents = await callDemoApi("GET", "/profiles/search?page=0&size=20");
+    const talentDetail = await callDemoApi("GET", "/profiles/1");
+
+    expect(completed.status).toBe(201);
+    expect(completed.body).toEqual(
+      expect.objectContaining({
+        fileUrl: "/api/demo/uploads/demo/profile-1/profile.png",
+      })
+    );
+    expect(talents.body.content[0]).toEqual(
+      expect.objectContaining({
+        thumbnailUrl: "/api/demo/uploads/demo/profile-1/profile.png",
+      })
+    );
+    expect(talentDetail.body).toEqual(
+      expect.objectContaining({
+        thumbnailUrl: "/api/demo/uploads/demo/profile-1/profile.png",
       })
     );
   });

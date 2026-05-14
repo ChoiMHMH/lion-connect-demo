@@ -547,8 +547,11 @@ export function completeDemoThumbnailUpload(
     fileSize: number;
   }
 ) {
-  ensureProfile(profileId);
   const fileUrl = `/api/demo/uploads/${body.objectKey}`;
+  const profile = ensureProfile(profileId);
+  profile.storageUrl = fileUrl;
+  profile.updatedAt = now();
+
   return {
     objectKey: body.objectKey,
     fileUrl,

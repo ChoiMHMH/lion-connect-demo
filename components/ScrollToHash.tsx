@@ -2,6 +2,10 @@
 
 import { useEffect } from "react";
 import { SCROLL_DELAY_MS, SCROLL_BEHAVIOR, SCROLL_BLOCK } from "@/constants/scroll";
+import {
+  BUSINESS_CONNECT_HASH,
+  scrollToBusinessConnectWhenReady,
+} from "@/lib/businessConnectNavigation";
 
 /**
  * 해시 기반 스크롤 처리 컴포넌트
@@ -15,6 +19,11 @@ export default function ScrollToHash() {
     if (hash) {
       // 약간의 지연을 주어 페이지가 완전히 로드된 후 스크롤
       setTimeout(() => {
+        if (hash === BUSINESS_CONNECT_HASH) {
+          scrollToBusinessConnectWhenReady({ behavior: SCROLL_BEHAVIOR });
+          return;
+        }
+
         const element = document.querySelector(hash);
         if (element) {
           element.scrollIntoView({

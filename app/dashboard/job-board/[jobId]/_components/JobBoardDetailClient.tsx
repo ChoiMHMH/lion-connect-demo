@@ -70,7 +70,7 @@ export default function JobBoardDetailClient({ jobId }: JobBoardDetailClientProp
       });
 
       if (goToApplications) {
-        router.push("/applications");
+        router.push("/dashboard/applications");
       }
     } catch (error) {
       console.error("지원하기 실패:", error);

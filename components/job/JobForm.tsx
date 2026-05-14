@@ -270,7 +270,7 @@ export function JobForm({
         </div>
 
         {/* 제출 버튼 */}
-        <div className="inline-flex flex-col justify-center items-start gap-8">
+        <div className="sticky top-24 inline-flex flex-col justify-center items-start gap-8 self-start">
           <button
             type="submit"
             disabled={isEditMode ? isSubmitting : !isValid || isSubmitting}

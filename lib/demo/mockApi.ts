@@ -43,7 +43,12 @@ import {
 } from "@/lib/demo/resumeStore";
 import {
   applyDemoJob,
+  buildDemoCompanyJobImagePresigns,
   cancelDemoApplication,
+  completeDemoCompanyJobImageUpload,
+  createDemoCompanyJobPosting,
+  createDemoInquiry,
+  deleteDemoCompanyJobPosting,
   getDemoCompanyJobPosting,
   getDemoPublicJobPosting,
   getDemoTalent,
@@ -55,11 +60,20 @@ import {
   listDemoInquiries,
   listDemoPublicJobPostings,
   listDemoTalents,
+  publishDemoCompanyJobPosting,
   setDemoAdminRole,
   setDemoAdminUserLocked,
   setDemoCompanyLocked,
+  unpublishDemoCompanyJobPosting,
+  updateDemoCompanyJobPosting,
+  updateDemoTalentThumbnail,
   updateDemoInquiryStatus,
 } from "@/lib/demo/roleStore";
+import type {
+  ImageUploadCompleteRequest,
+  JobPostingRequest,
+  PresignBulkRequest,
+} from "@/types/job";
 import type {
   AwardRequest,
   CertificationRequest,
@@ -72,7 +86,7 @@ import type {
   ThumbnailPresignRequest,
   WorkDrivenTestSubmitRequest,
 } from "@/types/talent";
-import type { InquiryStatus } from "@/types/inquiry";
+import type { CreateInquiryRequest, InquiryStatus } from "@/types/inquiry";
 
 type DemoHandlerContext = {
   method: string;
@@ -184,18 +198,17 @@ async function handleProfileAssetRoutes(context: DemoHandlerContext, profileId: 
       );
     }
     if (segments.length === 3 && method === "POST") {
-      return jsonResponse(
-        completeDemoThumbnailUpload(
-          profileId,
-          await readJson<{
-            objectKey: string;
-            originalFilename: string;
-            contentType: string;
-            fileSize: number;
-          }>(request)
-        ),
-        201
+      const result = completeDemoThumbnailUpload(
+        profileId,
+        await readJson<{
+          objectKey: string;
+          originalFilename: string;
+          contentType: string;
+          fileSize: number;
+        }>(request)
       );
+      updateDemoTalentThumbnail(profileId, result.fileUrl);
+      return jsonResponse(result, 201);
     }
   }
 
@@ -428,6 +441,27 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     return jsonResponse(listDemoCompanyJobPostings(searchParams));
   }
 
+  if (path === "/company/job-postings/images/presign-bulk" && method === "POST") {
+    return jsonResponse(
+      buildDemoCompanyJobImagePresigns(await readJson<PresignBulkRequest>(request)),
+      201
+    );
+  }
+
+  if (path === "/company/job-postings/images" && method === "POST") {
+    return jsonResponse(
+      completeDemoCompanyJobImageUpload(await readJson<ImageUploadCompleteRequest>(request)),
+      201
+    );
+  }
+
+  if (path === "/company/job-postings" && method === "POST") {
+    return jsonResponse(
+      createDemoCompanyJobPosting(await readJson<JobPostingRequest>(request)),
+      201
+    );
+  }
+
   if (
     segments[0] === "company" &&
     segments[1] === "job-postings" &&
@@ -444,6 +478,48 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     method === "GET"
   ) {
     return jsonResponse(getDemoCompanyJobPosting(parseId(segments[2], "job posting id")));
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments.length === 3 &&
+    method === "PUT"
+  ) {
+    return jsonResponse(
+      updateDemoCompanyJobPosting(
+        parseId(segments[2], "job posting id"),
+        await readJson<JobPostingRequest>(request)
+      )
+    );
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments.length === 3 &&
+    method === "DELETE"
+  ) {
+    deleteDemoCompanyJobPosting(parseId(segments[2], "job posting id"));
+    return noContentResponse();
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments[3] === "publish" &&
+    method === "PATCH"
+  ) {
+    return jsonResponse(publishDemoCompanyJobPosting(parseId(segments[2], "job posting id")));
+  }
+
+  if (
+    segments[0] === "company" &&
+    segments[1] === "job-postings" &&
+    segments[3] === "unpublish" &&
+    method === "PATCH"
+  ) {
+    return jsonResponse(unpublishDemoCompanyJobPosting(parseId(segments[2], "job posting id")));
   }
 
   if (path === "/admin/users" && method === "GET") {
@@ -483,6 +559,10 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
 
   if (path === "/admin/inquiries" && method === "GET") {
     return jsonResponse(listDemoInquiries(searchParams));
+  }
+
+  if (path === "/inquiries" && method === "POST") {
+    return jsonResponse(createDemoInquiry(await readJson<CreateInquiryRequest>(request)), 201);
   }
 
   if (

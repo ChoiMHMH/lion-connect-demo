@@ -1,10 +1,10 @@
 "use client";
 
 import { useQueryParams } from "@/hooks/common/useQueryParams";
-import { useAdminInquiries } from "@/hooks/inquiry/useInquiries";
+import { useAdminInquiries, useUpdateInquiryStatus } from "@/hooks/inquiry/useInquiries";
 import InquiryListItem from "./InquiryListItem";
 import InquiryPagination from "./InquiryPagination";
-import type { InquiryListParams, InquiryStatus } from "@/types/inquiry";
+import type { Inquiry, InquiryListParams, InquiryStatus } from "@/types/inquiry";
 
 /**
  * 문의 관리 페이지 컨텐츠
@@ -27,6 +27,14 @@ export default function InquiriesPageContent() {
 
   // TanStack Query로 데이터 조회
   const { data, isLoading, error } = useAdminInquiries(queryParams);
+  const updateInquiryStatus = useUpdateInquiryStatus();
+
+  const handleInquiryClick = (inquiry: Inquiry) => {
+    if (inquiry.status === "DONE") return;
+    if (updateInquiryStatus.isPending && updateInquiryStatus.variables?.id === inquiry.id) return;
+
+    updateInquiryStatus.mutate({ id: inquiry.id, status: "DONE" });
+  };
 
   return (
     <div className="w-full min-h-screen bg-bg-primary mt-5">
@@ -82,7 +90,11 @@ export default function InquiriesPageContent() {
 
               {/* 데이터 행들 */}
               {data.content.map((inquiry) => (
-                <InquiryListItem key={inquiry.id} inquiry={inquiry} />
+                <InquiryListItem
+                  key={inquiry.id}
+                  inquiry={inquiry}
+                  onClick={() => handleInquiryClick(inquiry)}
+                />
               ))}
             </>
           )}
