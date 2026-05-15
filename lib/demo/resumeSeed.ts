@@ -136,7 +136,7 @@ export const demoResumeSeed: DemoResumeData = {
       {
         id: 601,
         type: "LINK",
-        url: "https://github.com/lionconnect-demo",
+        url: "https://github.com/ChoiMHMH/lion-connect-demo",
         originalFilename: null,
         contentType: "text/uri-list",
         fileSize: 0,
