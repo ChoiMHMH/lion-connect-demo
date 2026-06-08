@@ -37,8 +37,13 @@ describe("DemoGuideProvider", () => {
 
     expect(await screen.findByText("포트폴리오 데모 안내")).toBeVisible();
 
-    await userEvent.click(screen.getByRole("button", { name: "계속 랜딩 보기" }));
+    const keepLandingButton = screen.getByRole("button", { name: "계속 랜딩 보기" });
+
+    expect(keepLandingButton).toHaveClass("bg-brand-05");
+
+    await userEvent.click(keepLandingButton);
     expect(screen.queryByText("포트폴리오 데모 안내")).not.toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
 
     unmount();
 
@@ -51,14 +56,14 @@ describe("DemoGuideProvider", () => {
     expect(screen.queryByText("포트폴리오 데모 안내")).not.toBeInTheDocument();
   });
 
-  it("데모 둘러보기 버튼은 /demo로 이동한다", async () => {
+  it("데모 설명 보기 버튼은 /demo로 이동한다", async () => {
     render(
       <DemoGuideProvider>
         <div>landing</div>
       </DemoGuideProvider>
     );
 
-    await userEvent.click(await screen.findByRole("button", { name: "데모 둘러보기" }));
+    await userEvent.click(await screen.findByRole("button", { name: "데모 설명 보기" }));
 
     expect(mockPush).toHaveBeenCalledWith("/demo");
   });

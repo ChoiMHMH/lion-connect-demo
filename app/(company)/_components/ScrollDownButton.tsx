@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
 type ScrollDownButtonProps = {
   targetSectionId?: string;
@@ -17,16 +16,14 @@ export default function ScrollDownButton({
   targetSectionId = "benefits-section",
   delay = 1200,
 }: ScrollDownButtonProps) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const scrollToNextSection = () => {
     const targetSection = document.getElementById(targetSectionId);
     if (targetSection) {
-      const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - 145;
+      const headerOffset = 80;
+      const sectionPadding = 24;
+      const targetPosition =
+        targetSection.getBoundingClientRect().top + window.scrollY - headerOffset - sectionPadding;
+
       window.scrollTo({
         top: targetPosition,
         behavior: "smooth",
@@ -37,10 +34,8 @@ export default function ScrollDownButton({
   return (
     <button
       onClick={scrollToNextSection}
-      className={`absolute bottom-12 left-1/2 -translate-x-1/2 z-20 w-8 h-8 transition-all duration-1000 ease-out animate-bounce hover:scale-110 ${
-        isMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-      }`}
-      style={{ transitionDelay: `${delay}ms` }}
+      className="absolute bottom-8 left-1/2 z-20 h-8 w-8 -translate-x-1/2 animate-bounce opacity-100 transition-transform duration-300 ease-out hover:scale-110"
+      style={{ animationDelay: `${delay}ms` }}
       aria-label="다음 섹션으로 스크롤"
     >
       <Image
