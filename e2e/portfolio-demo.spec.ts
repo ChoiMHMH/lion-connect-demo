@@ -16,6 +16,7 @@ test.describe("portfolio demo mode", () => {
     await page.getByRole("button", { name: "계속 랜딩 보기" }).click();
     await expect(page.getByRole("dialog", { name: "포트폴리오 데모 안내" })).toBeHidden();
     await expectDemoHeader(page, "기업 데모");
+    await expect(page.getByRole("button", { name: "다음 섹션으로 스크롤" })).toBeInViewport();
 
     await expect(page.getByRole("button", { name: "로그인/회원가입" })).toHaveCount(0);
     await page.getByRole("link", { name: "데모 허브" }).click();
@@ -38,7 +39,6 @@ test.describe("portfolio demo mode", () => {
 
     const logToggle = page.getByRole("button", { name: /Demo API Log/ });
     await expect(logToggle).toBeVisible();
-    await logToggle.click();
     await expect(page.getByText("/api/demo/profile/me")).toBeVisible();
   });
 

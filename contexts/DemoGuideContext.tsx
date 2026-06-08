@@ -20,7 +20,9 @@ type DemoGuideCopy = {
   title: string;
   description: string;
   primaryLabel: string;
+  primaryAction: "close" | "navigateDemo";
   secondaryLabel: string;
+  secondaryAction: "close" | "navigateDemo";
 };
 
 const DEMO_GUIDE_COPY: Record<DemoGuideModalType, DemoGuideCopy> = {
@@ -28,15 +30,19 @@ const DEMO_GUIDE_COPY: Record<DemoGuideModalType, DemoGuideCopy> = {
     title: "포트폴리오 데모 안내",
     description:
       "LionConnect 운영 서버가 종료되어 현재 화면은 실제 서버 없이 Mock API로 둘러볼 수 있는 데모 모드입니다.\n인재, 기업, 관리자 흐름은 이후 데모 허브에서 역할을 선택해 확인할 수 있습니다.",
-    primaryLabel: "데모 둘러보기",
-    secondaryLabel: "계속 랜딩 보기",
+    primaryLabel: "계속 랜딩 보기",
+    primaryAction: "close",
+    secondaryLabel: "데모 설명 보기",
+    secondaryAction: "navigateDemo",
   },
   serverClosed: {
     title: "서버 종료 안내",
     description:
       "실제 로그인은 현재 제공되지 않습니다.\n회원가입과 운영 인증 서버도 종료되어 포트폴리오 검토는 데모 허브에서 역할을 선택해 진행해주세요.",
     primaryLabel: "데모 페이지로 이동",
+    primaryAction: "navigateDemo",
     secondaryLabel: "닫기",
+    secondaryAction: "close",
   },
 };
 
@@ -73,7 +79,7 @@ export function DemoGuideProvider({ children }: { children: React.ReactNode }) {
     [closeGuide, openPortfolioGuide, openServerClosedGuide]
   );
 
-  const handlePrimaryAction = () => {
+  const handleNavigateDemo = () => {
     setModalType(null);
     router.push("/demo");
   };
@@ -85,7 +91,7 @@ export function DemoGuideProvider({ children }: { children: React.ReactNode }) {
       <DemoGuideModal
         modalType={modalType}
         onClose={closeGuide}
-        onPrimaryAction={handlePrimaryAction}
+        onNavigateDemo={handleNavigateDemo}
       />
     </DemoGuideContext.Provider>
   );
@@ -116,11 +122,11 @@ export function useDemoGuide() {
 function DemoGuideModal({
   modalType,
   onClose,
-  onPrimaryAction,
+  onNavigateDemo,
 }: {
   modalType: DemoGuideModalType | null;
   onClose: () => void;
-  onPrimaryAction: () => void;
+  onNavigateDemo: () => void;
 }) {
   useEffect(() => {
     if (!modalType) return;
@@ -138,6 +144,15 @@ function DemoGuideModal({
   if (!modalType) return null;
 
   const copy = DEMO_GUIDE_COPY[modalType];
+
+  const runAction = (action: DemoGuideCopy["primaryAction"]) => {
+    if (action === "navigateDemo") {
+      onNavigateDemo();
+      return;
+    }
+
+    onClose();
+  };
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
@@ -181,17 +196,17 @@ function DemoGuideModal({
           </p>
         </div>
 
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => runAction(copy.secondaryAction)}
             className="h-10 rounded-md px-4 text-sm font-semibold text-neutral-600 transition-colors hover:bg-neutral-100"
           >
             {copy.secondaryLabel}
           </button>
           <button
             type="button"
-            onClick={onPrimaryAction}
+            onClick={() => runAction(copy.primaryAction)}
             className="h-10 rounded-md bg-brand-05 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-06"
           >
             {copy.primaryLabel}

@@ -14,10 +14,10 @@ type HeroSectionProps = {
  * 페이지 로드 시 순차적인 페이드인 애니메이션이 적용됩니다.
  */
 export default function HeroSection({
-  backgroundImage = "/images/hero-image.png",
+  backgroundImage = "/images/hero-image-landing.webp",
 }: HeroSectionProps) {
   return (
-    <section className="relative w-full min-w-[1444px] h-screen flex justify-center items-center overflow-hidden">
+    <section className="relative flex h-[calc(100svh-80px)] min-h-[560px] w-full min-w-[1444px] items-center justify-center overflow-hidden">
       {/* Background Image with Gradient Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -25,7 +25,8 @@ export default function HeroSection({
           alt="Lion Connect Hero Background"
           fill
           priority
-          className="object-cover animate-[fadeInZoom_1.5s_ease-out_forwards]"
+          fetchPriority="high"
+          className="object-cover"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-linear-to-b from-black/30 to-black/80 animate-[fadeIn_1s_ease-out_forwards]" />

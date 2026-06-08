@@ -7,7 +7,7 @@ import { useDemoApiLogStore } from "@/store/demoApiLogStore";
 import { cn } from "@/utils/utils";
 
 export default function DemoApiLogPanel() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const { accessToken, user } = useAuthStore();
   const { entries, clearEntries } = useDemoApiLogStore();
   const isDemoMode = isDemoAuthState({ accessToken, user });
