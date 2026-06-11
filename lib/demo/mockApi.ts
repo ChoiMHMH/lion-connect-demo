@@ -468,7 +468,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     segments[3] === "applications" &&
     method === "GET"
   ) {
-    return jsonResponse(listDemoApplicants(searchParams));
+    return jsonResponse(listDemoApplicants(parseId(segments[2], "job posting id"), searchParams));
   }
 
   if (
@@ -586,7 +586,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     segments[3] === "applications" &&
     method === "GET"
   ) {
-    return jsonResponse(listDemoApplicants(searchParams));
+    return jsonResponse(listDemoApplicants(parseId(segments[2], "job posting id"), searchParams));
   }
 
   return null;

@@ -198,6 +198,81 @@ describe("demo role page mock API", () => {
     );
   });
 
+  it("지원자 현황은 공고별로 분리되며 지원/취소가 반영된다", async () => {
+    // 시드 공고 9001은 데모 인재 1명, 9002는 0명으로 시작
+    const applicants9001 = await callDemoApi(
+      "GET",
+      "/company/job-postings/9001/applications?page=0&size=10"
+    );
+    const applicants9002 = await callDemoApi(
+      "GET",
+      "/company/job-postings/9002/applications?page=0&size=10"
+    );
+    expect(applicants9001.body.totalElements).toBe(1);
+    expect(applicants9001.body.content[0]).toEqual(
+      expect.objectContaining({ talentProfileId: 1, jobPostingId: 9001 })
+    );
+    expect(applicants9002.body.totalElements).toBe(0);
+
+    // 9002에 지원하면 9002 지원자 현황에만 추가된다
+    const applied = await callDemoApi("POST", "/job-postings/9002/apply", {
+      talentProfileId: 1,
+    });
+    const applicants9002AfterApply = await callDemoApi(
+      "GET",
+      "/company/job-postings/9002/applications?page=0&size=10"
+    );
+    const applicants9001AfterApply = await callDemoApi(
+      "GET",
+      "/company/job-postings/9001/applications?page=0&size=10"
+    );
+    expect(applicants9002AfterApply.body.totalElements).toBe(1);
+    expect(applicants9002AfterApply.body.content[0]).toEqual(
+      expect.objectContaining({
+        talentProfileId: 1,
+        jobPostingId: 9002,
+        applicationStatus: "APPLIED",
+      })
+    );
+    expect(applicants9001AfterApply.body.totalElements).toBe(1);
+
+    // 공고 목록의 지원자 수도 공고별로 반영된다
+    const companyJobs = await callDemoApi("GET", "/company/job-postings/me?page=0&size=10");
+    const job9001 = companyJobs.body.content.find(
+      (job: { jobPostingId: number }) => job.jobPostingId === 9001
+    );
+    const job9002 = companyJobs.body.content.find(
+      (job: { jobPostingId: number }) => job.jobPostingId === 9002
+    );
+    expect(job9001.totalApplicationsCount).toBe(1);
+    expect(job9002.totalApplicationsCount).toBe(1);
+
+    // 지원 취소 시 해당 공고의 지원자 현황에서 제거된다
+    const canceled = await callDemoApi(
+      "PATCH",
+      `/me/job-applications/${applied.body.jobApplicationId}/cancel`
+    );
+    const applicants9002AfterCancel = await callDemoApi(
+      "GET",
+      "/company/job-postings/9002/applications?page=0&size=10"
+    );
+    expect(canceled.status).toBe(204);
+    expect(applicants9002AfterCancel.body.totalElements).toBe(0);
+  });
+
+  it("새로 만든 공고는 지원자가 없다", async () => {
+    const created = await callDemoApi("POST", "/company/job-postings", jobPostingRequest);
+    const createdId = created.body.jobPostingId;
+    const applicants = await callDemoApi(
+      "GET",
+      `/company/job-postings/${createdId}/applications?page=0&size=10`
+    );
+
+    expect(created.body.totalApplicationsCount).toBe(0);
+    expect(applicants.body.totalElements).toBe(0);
+    expect(applicants.body.content).toHaveLength(0);
+  });
+
   it("기업 채용공고 이미지 업로드와 등록/수정/게시/삭제 mutation을 mock한다", async () => {
     const presigned = await callDemoApi("POST", "/company/job-postings/images/presign-bulk", {
       files: [{ originalFilename: "qa.png", contentType: "image/png" }],

@@ -221,8 +221,17 @@ export const demoApplications: JobApplication[] = [
   },
 ];
 
-export const demoApplicants: CompanyApplicant[] = [
+/**
+ * 데모 전용 지원자 타입.
+ * 실제 API는 `/company/job-postings/{jobId}/applications` 처럼 URL로 공고가 결정되어
+ * 응답에 jobPostingId가 없으므로, 공용 CompanyApplicant는 그대로 두고
+ * 데모 store에서 공고별 필터링을 위해서만 jobPostingId를 덧붙인다.
+ */
+export type DemoApplicant = CompanyApplicant & { jobPostingId: number };
+
+export const demoApplicants: DemoApplicant[] = [
   {
+    jobPostingId: 9001,
     applicantName: "데모 인재",
     jobGroupName: "개발",
     jobRoleName: "프론트엔드",
@@ -295,7 +304,7 @@ export type DemoRoleSeed = {
   talents: TalentListItem[];
   talentDetails: TalentDetailResponse[];
   applications: JobApplication[];
-  applicants: CompanyApplicant[];
+  applicants: DemoApplicant[];
   adminUsers: AdminUsersResponse["content"];
   adminCompanies: AdminCompaniesResponse["content"];
   inquiries: InquiryListResponse["content"];
