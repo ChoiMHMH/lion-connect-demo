@@ -43,7 +43,9 @@ describe("demo resume mock API", () => {
       }),
     ]);
     expect(profile.status).toBe(200);
-    expect(profile.body).toEqual(expect.objectContaining({ id: 1, name: "데모 인재" }));
+    expect(profile.body).toEqual(
+      expect.objectContaining({ id: 1, name: "홍길동", storageUrl: "/demo/profile-demo.png" })
+    );
     expect(educations.body).toEqual([
       expect.objectContaining({ id: 101, schoolName: "라이언대학교" }),
     ]);
@@ -102,7 +104,7 @@ describe("demo resume mock API", () => {
 
   it("최종 프로필 저장은 status를 COMPLETED로 반영하고 목록에도 유지한다", async () => {
     const updated = await callDemoApi("PUT", "/profile/me?profileId=1", {
-      name: "데모 인재",
+      name: "홍길동",
       title: "완성된 이력서",
       introduction: "기존 submitTalentRegister 최종 저장 경로를 통과한 상태입니다.",
       storageUrl: "",

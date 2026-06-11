@@ -40,4 +40,14 @@ describe("IntroduceCard", () => {
     expect(profileImage).toHaveAttribute("src", "/api/demo/uploads/demo/profile-1/profile.png");
     expect(within(cardLink).getByText("상세 보기")).toBeVisible();
   });
+
+  it("이름을 줄임표 처리하지 않고 전체 표시한다", () => {
+    render(<IntroduceCard name="데모 백엔드 인재" />);
+
+    const heading = screen.getByRole("heading", { level: 2 });
+
+    expect(heading).toHaveTextContent("데모 백엔드 인재");
+    expect(heading).not.toHaveClass("truncate");
+    expect(heading.style.maxWidth).toBe("");
+  });
 });

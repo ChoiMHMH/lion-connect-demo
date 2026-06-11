@@ -21,6 +21,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   talentRegisterSchema,
   defaultTalentRegisterValues,
@@ -33,6 +34,7 @@ import { submitTalentRegister } from "./_actions/submitTalentRegister";
 // 훅
 import { useTalentRegisterData } from "@/hooks/talent/queries/useTalentRegisterData";
 import { useInitializeTalentForm } from "@/hooks/talent/queries/useInitializeTalentForm";
+import { invalidateTalentPreviewQueries } from "@/hooks/talent/queries/invalidateTalentPreviewQueries";
 
 // Store
 import { useAuthStore } from "@/store/authStore";
@@ -67,6 +69,7 @@ type ValidationErrorItem = {
 
 export default function TalentRegisterPage({ params }: { params: Promise<{ profileId: string }> }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const [isUserVerified, setIsUserVerified] = useState(false);
@@ -144,6 +147,7 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
           // 이렇게 해야 다시 임시저장 시 POST가 아닌 PUT이 호출됨
           methods.reset(result.data, { keepTouched: true, keepErrors: true });
         }
+        await invalidateTalentPreviewQueries(queryClient, profileId);
         showToast("임시 저장되었습니다!");
       } else {
         // TODO: 에러 처리
@@ -198,6 +202,7 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
       if (result.data) {
         methods.reset(result.data);
       }
+      await invalidateTalentPreviewQueries(queryClient, profileId);
       // 성공 시 토스트 표시 후 프로필 목록으로 이동
       showToast("인재 프로필이 성공적으로 등록되었습니다!");
       router.push("/profile");

@@ -14,7 +14,9 @@ export default async function CompanyLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialDemoRole = await getInitialDemoRole(DEFAULT_COMPANY_DEMO_ROLE);
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_COMPANY_DEMO_ROLE, {
+    preferFallbackInDemoOnly: true,
+  });
 
   return (
     <>

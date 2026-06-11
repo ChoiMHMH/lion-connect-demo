@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { JobSelector } from "@/components/ui/job-selector";
 import { JobList } from "./job-board/_components/JobList";
 import { fetchPublicJobPostings } from "@/lib/api/jobPostings";
@@ -10,13 +10,13 @@ import { findJobGroupById, findJobRoleById } from "@/constants/jobMapping";
 
 function DashboardContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // URL 파라미터에서 값 가져오기
+  // 필터/페이지 상태는 URL 쿼리에서 읽는다 (새로고침·공유·뒤로가기 시 유지).
   const pageFromUrl = Number(searchParams.get("page")) || 1;
-
-  const [selectedJobGroupId, setSelectedJobGroupId] = useState<string>("");
-  const [selectedJobRoleId, setSelectedJobRoleId] = useState<string>("");
+  const selectedJobGroupId = searchParams.get("jobGroupId") ?? "";
+  const selectedJobRoleId = searchParams.get("jobRoleId") ?? "";
 
   // ID를 code로 변환
   const jobGroupCode = selectedJobGroupId
@@ -38,15 +38,28 @@ function DashboardContent() {
       }),
   });
 
+  // 필터 변경 시 URL 쿼리를 갱신한다. 필터가 바뀌면 항상 1페이지로 초기화.
+  const pushQuery = (next: { jobGroupId?: string; jobRoleId?: string }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if ("jobGroupId" in next) {
+      if (next.jobGroupId) params.set("jobGroupId", next.jobGroupId);
+      else params.delete("jobGroupId");
+    }
+    if ("jobRoleId" in next) {
+      if (next.jobRoleId) params.set("jobRoleId", next.jobRoleId);
+      else params.delete("jobRoleId");
+    }
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const handleJobGroupChange = (jobGroupId: string) => {
-    setSelectedJobGroupId(jobGroupId);
-    setSelectedJobRoleId(""); // 직군 변경 시 직무 초기화
-    router.push("/dashboard"); // 페이지 초기화 (URL에서 page 제거)
+    // 직군 변경 시 직무 초기화
+    pushQuery({ jobGroupId, jobRoleId: "" });
   };
 
   const handleJobRoleChange = (jobRoleId: string) => {
-    setSelectedJobRoleId(jobRoleId);
-    router.push("/dashboard"); // 페이지 초기화 (URL에서 page 제거)
+    pushQuery({ jobRoleId });
   };
 
   return (

@@ -136,9 +136,9 @@ export default function IntroduceCard(props: IntroduceCardProps) {
         <div className="px-2.5 w-[599px] inline-flex flex-col justify-start items-start gap-2.5">
           <div className="flex flex-col justify-start items-start gap-6">
             {/* 이름 & 배지 */}
-            <div className="inline-flex justify-start items-center gap-8">
+            <div className="flex flex-wrap justify-start items-center gap-x-8 gap-y-3">
               <div className="p-2 flex justify-center items-center gap-2.5">
-                <h2 className="text-xl font-semibold text-neutral-800 truncate max-w-[10ch]">
+                <h2 className="text-xl font-semibold text-neutral-800" title={name}>
                   {name}
                 </h2>
               </div>

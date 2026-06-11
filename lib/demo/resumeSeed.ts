@@ -32,18 +32,20 @@ export type DemoResumeData = {
 };
 
 export const DEMO_RESUME_NOW = "2026-05-12T00:00:00.000Z";
+const DEMO_PROFILE_IMAGE_URL = "/demo/profile-demo.png";
+const DEMO_HONG_PORTFOLIO_URL = "/demo/mock_portfolio_frontend_honggildong.pdf";
 
 export const demoResumeSeed: DemoResumeData = {
   profiles: [
     {
       id: 1,
-      name: "데모 인재",
+      name: "홍길동",
       title: "프론트엔드 포트폴리오 이력서",
       introduction:
         "Next.js, React Query, React Hook Form 기반 제품 화면을 설계하고 안정적으로 연결하는 프론트엔드 개발자입니다.",
-      storageUrl: "/demo-assets/profile-1/portfolio.pdf",
+      storageUrl: DEMO_PROFILE_IMAGE_URL,
       likelionCode: "DEMO-2026",
-      visibility: "PRIVATE",
+      visibility: "PUBLIC",
       status: "COMPLETED",
       locked: false,
       createdAt: DEMO_RESUME_NOW,
@@ -145,11 +147,21 @@ export const demoResumeSeed: DemoResumeData = {
       },
       {
         id: 602,
+        type: "THUMBNAIL",
+        url: DEMO_PROFILE_IMAGE_URL,
+        originalFilename: "profile-demo.png",
+        contentType: "image/png",
+        fileSize: 1681255,
+        createdAt: DEMO_RESUME_NOW,
+        updatedAt: DEMO_RESUME_NOW,
+      },
+      {
+        id: 603,
         type: "PORTFOLIO",
-        url: "/demo-assets/profile-1/portfolio.pdf",
-        originalFilename: "portfolio.pdf",
+        url: DEMO_HONG_PORTFOLIO_URL,
+        originalFilename: "mock_portfolio_frontend_honggildong.pdf",
         contentType: "application/pdf",
-        fileSize: 1234,
+        fileSize: 70763,
         createdAt: DEMO_RESUME_NOW,
         updatedAt: DEMO_RESUME_NOW,
       },

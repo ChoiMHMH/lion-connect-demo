@@ -159,20 +159,20 @@ describe("demo role page mock API", () => {
   });
 
   it("인재 랜딩 공개 공고는 게시중만 노출하고 게시/취소가 반영된다", async () => {
-    // 시드: 게시중 2개(9001, 9002), 게시 대기 1개(9003)
+    // 시드: 게시중 5개(9001, 9002, 9004, 9005, 9006), 게시 대기 1개(9003)
     const initial = await callDemoApi("GET", "/job-postings?page=0&size=12");
     const initialIds = initial.body.content.map(
       (job: { jobPostingId: number }) => job.jobPostingId
     );
-    expect(initial.body.totalElements).toBe(2);
-    expect(initialIds).toEqual(expect.arrayContaining([9001, 9002]));
+    expect(initial.body.totalElements).toBe(5);
+    expect(initialIds).toEqual(expect.arrayContaining([9001, 9002, 9004, 9005, 9006]));
     expect(initialIds).not.toContain(9003);
 
     // 게시 대기 공고(9003)를 게시하면 랜딩에 노출된다
     const published = await callDemoApi("PATCH", "/company/job-postings/9003/publish");
     const afterPublish = await callDemoApi("GET", "/job-postings?page=0&size=12");
     expect(published.status).toBe(200);
-    expect(afterPublish.body.totalElements).toBe(3);
+    expect(afterPublish.body.totalElements).toBe(6);
     expect(
       afterPublish.body.content.map((job: { jobPostingId: number }) => job.jobPostingId)
     ).toContain(9003);
@@ -185,15 +185,15 @@ describe("demo role page mock API", () => {
       afterUnpublish.body.content.map((job: { jobPostingId: number }) => job.jobPostingId)
     ).not.toContain(9001);
 
-    // 기업 관리 목록은 게시 여부와 무관하게 전체 3개를 보여준다
+    // 기업 관리 목록은 게시 여부와 무관하게 전체 6개를 보여준다
     const companyJobs = await callDemoApi("GET", "/company/job-postings/me?page=0&size=10");
-    expect(companyJobs.body.totalElements).toBe(3);
+    expect(companyJobs.body.totalElements).toBe(6);
   });
 
   it("관리자 채용공고 목록은 게시 대기 공고도 포함한다", async () => {
     const adminJobs = await callDemoApi("GET", "/admin/job-postings?status=&page=0&size=12");
     const ids = adminJobs.body.content.map((job: { jobPostingId: number }) => job.jobPostingId);
-    expect(adminJobs.body.totalElements).toBe(3);
+    expect(adminJobs.body.totalElements).toBe(6);
     expect(ids).toEqual(expect.arrayContaining([9001, 9002, 9003]));
   });
 
@@ -211,14 +211,17 @@ describe("demo role page mock API", () => {
     expect(talents.body.content[0]).toEqual(
       expect.objectContaining({
         id: 1,
-        name: "데모 인재",
-        jobRoles: ["프론트앤드"],
+        name: "홍길동",
+        thumbnailUrl: "/demo/profile-demo.png",
+        jobRoles: ["프론트엔드"],
       })
     );
     expect(talentDetail.body).toEqual(
       expect.objectContaining({
         id: 1,
-        name: "데모 인재",
+        name: "홍길동",
+        thumbnailUrl: "/demo/profile-demo.png",
+        portfolioUrl: "/demo/mock_portfolio_frontend_honggildong.pdf",
         workDrivenLevel: 4,
       })
     );
@@ -231,14 +234,14 @@ describe("demo role page mock API", () => {
     expect(companyJobDetail.body).toEqual(expect.objectContaining({ jobPostingId: 9001 }));
     expect(applicants.body.content[0]).toEqual(
       expect.objectContaining({
-        applicantName: "데모 인재",
+        applicantName: "홍길동",
         talentProfileId: 1,
       })
     );
   });
 
   it("지원자 현황은 공고별로 분리되며 지원/취소가 반영된다", async () => {
-    // 시드 공고 9001은 데모 인재 1명, 9002는 0명으로 시작
+    // 시드 공고 9001은 홍길동 인재 1명, 9002는 0명으로 시작
     const applicants9001 = await callDemoApi(
       "GET",
       "/company/job-postings/9001/applications?page=0&size=10"
@@ -454,6 +457,51 @@ describe("demo role page mock API", () => {
         status: "NEW",
       })
     );
+  });
+
+  it("공개 공고는 직군/직무 코드로 필터링된다", async () => {
+    const frontend = await callDemoApi(
+      "GET",
+      "/job-postings?jobGroupCode=development&jobRoleCode=frontend&page=0&size=12"
+    );
+    const dev = await callDemoApi("GET", "/job-postings?jobGroupCode=development&page=0&size=12");
+    const design = await callDemoApi("GET", "/job-postings?jobGroupCode=design&page=0&size=12");
+    const dataGroup = await callDemoApi("GET", "/job-postings?jobGroupCode=data&page=0&size=12");
+
+    const jobIds = (res: { body: { content: { jobPostingId: number }[] } }) =>
+      res.body.content.map((job) => job.jobPostingId).sort((a, b) => a - b);
+
+    // 게시중 공고 중 개발/프론트엔드만
+    expect(jobIds(frontend)).toEqual([9001, 9002]);
+    // 직군만 지정하면 해당 직군의 게시중 공고 전체
+    expect(jobIds(dev)).toEqual([9001, 9002, 9004]);
+    expect(jobIds(design)).toEqual([9005]);
+    // 매칭되는 게시중 공고가 없으면 빈 목록
+    expect(dataGroup.body.totalElements).toBe(0);
+  });
+
+  it("인재 검색은 직군/직무 id와 keyword로 필터링된다", async () => {
+    const byRole = await callDemoApi("GET", "/profiles/search?jobRoleId=2&page=0&size=20");
+    const byGroup = await callDemoApi("GET", "/profiles/search?jobGroupId=2&page=0&size=20");
+    const devGroup = await callDemoApi("GET", "/profiles/search?jobGroupId=1&page=0&size=20");
+    const roleAndKeyword = await callDemoApi(
+      "GET",
+      "/profiles/search?jobRoleId=1&keyword=홍길동&page=0&size=20"
+    );
+    const noMatch = await callDemoApi("GET", "/profiles/search?jobRoleId=6&page=0&size=20");
+
+    const talentIds = (res: { body: { content: { id: number }[] } }) =>
+      res.body.content.map((talent) => talent.id).sort((a, b) => a - b);
+
+    expect(talentIds(byRole)).toEqual([2]);
+    // 직군(디자인)만 지정하면 그 직군의 직무를 가진 인재
+    expect(talentIds(byGroup)).toEqual([3]);
+    // 개발 직군은 프론트엔드/백엔드 인재 모두 포함
+    expect(talentIds(devGroup)).toEqual([1, 2]);
+    // 직무 + keyword AND 결합
+    expect(talentIds(roleAndKeyword)).toEqual([1]);
+    // 매칭되는 인재가 없으면 빈 목록
+    expect(noMatch.body.totalElements).toBe(0);
   });
 
   it("관리자 문의 상태 변경을 mock하고 목록에 반영한다", async () => {

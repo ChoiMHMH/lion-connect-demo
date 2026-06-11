@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdminHeader from "@/components/headers/AdminHeader";
 import CompanyHeader from "@/components/headers/CompanyHeader";
 import MemberHeader from "@/components/headers/MemberHeader";
+import { DEMO_AUTH_PROFILES } from "@/constants/demoAuth";
 
 const mocks = vi.hoisted(() => ({
   user: null as { id: number; email: string } | null,
@@ -49,6 +50,22 @@ describe("role headers initial demo role", () => {
     render(<CompanyHeader initialDemoRole="demo_company" />);
 
     expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_company");
+  });
+
+  it("CompanyHeader는 auth store에 인재 demo user가 남아도 initial company role을 우선한다", () => {
+    mocks.user = DEMO_AUTH_PROFILES.demo_talent.user;
+
+    render(<CompanyHeader initialDemoRole="demo_company" />);
+
+    expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_company");
+  });
+
+  it("CompanyHeader는 initial role이 null이면 auth store의 demo role을 fallback으로 사용한다", () => {
+    mocks.user = DEMO_AUTH_PROFILES.demo_talent.user;
+
+    render(<CompanyHeader initialDemoRole={null} />);
+
+    expect(screen.getByTestId("demo-header")).toHaveTextContent("demo_talent");
   });
 
   it("AdminHeader는 auth store hydration 전 initial demo role로 DemoHeader를 렌더링한다", () => {
