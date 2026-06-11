@@ -172,8 +172,28 @@ function toSupportedEmploymentType(
   return employmentType === "CONTRACT" ? "INTERN" : employmentType;
 }
 
+/**
+ * 정적 시드 커버 이미지(objectKey → `/demo/*.png`).
+ * 시드 이미지는 IndexedDB 업로드 blob이 아니라 `public/demo/` 정적 파일이다.
+ * 수정 요청은 백엔드 계약상 `url`/`fileUrl`을 제거하고 objectKey만 보내므로(lib/api/jobPostings.ts),
+ * 이 매핑이 없으면 수정 라운드트립 후 `/api/demo/uploads/{objectKey}`로 바뀌어 깨진다(blob 부재 → 404).
+ * 시드 데이터에서 자동 도출해 항상 시드와 동기화된다.
+ */
+const STATIC_SEED_IMAGE_URL_BY_KEY: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const detail of demoRoleSeed.jobDetails) {
+    for (const image of detail.images ?? []) {
+      const seedUrl = image.url ?? image.fileUrl;
+      if (seedUrl && !seedUrl.startsWith("/api/demo/uploads")) {
+        map[image.objectKey] = seedUrl;
+      }
+    }
+  }
+  return map;
+})();
+
 function fileUrlForObjectKey(objectKey: string) {
-  return `/api/demo/uploads/${objectKey}`;
+  return STATIC_SEED_IMAGE_URL_BY_KEY[objectKey] ?? `/api/demo/uploads/${objectKey}`;
 }
 
 function normalizeJobImages(images: JobImageMetadata[]): JobImageMetadata[] {

@@ -96,6 +96,37 @@ describe("demo role page mock API", () => {
     expect(canceled.status).toBe(204);
   });
 
+  it("시드 공고의 제목만 수정해도 정적 커버 이미지 URL이 유지된다(깨지지 않음)", async () => {
+    // 실제 수정 요청은 백엔드 계약상 기존 이미지의 url/fileUrl을 제거하고 objectKey만 보낸다.
+    const updateBody = {
+      ...jobPostingRequest,
+      title: "제목만 바꾼 데모 공고",
+      images: [
+        {
+          objectKey: "demo/demo-cover.png",
+          contentType: "image/png",
+          fileSize: 1024,
+          originalFilename: "demo-cover.png",
+          sortOrder: 1,
+        },
+      ],
+    };
+
+    const updated = await callDemoApi("PUT", "/company/job-postings/9001", updateBody);
+    const detail = await callDemoApi("GET", "/company/job-postings/9001");
+
+    expect(updated.status).toBe(200);
+    expect(detail.body.title).toBe("제목만 바꾼 데모 공고");
+    // /api/demo/uploads/... 로 재구성되지 않고 정적 경로를 유지해야 한다.
+    expect(detail.body.images[0]).toEqual(
+      expect.objectContaining({
+        objectKey: "demo/demo-cover.png",
+        url: "/demo/demo-cover.png",
+        fileUrl: "/demo/demo-cover.png",
+      })
+    );
+  });
+
   it("지원 상태는 채용공고 상세와 지원 현황 목록에 함께 반영된다", async () => {
     const initialDetail = await callDemoApi("GET", "/job-postings/9001");
     const initialApplications = await callDemoApi("GET", "/me/job-applications?page=0&size=10");
