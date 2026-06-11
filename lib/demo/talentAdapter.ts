@@ -31,17 +31,32 @@ function resumeLanguageLabels(snapshot: DemoResumeSnapshot): string[] {
   );
 }
 
+const EXPERIENCE_LABEL_BY_ID: Record<number, string> = {
+  1: "부트캠프 경험자",
+  2: "창업 경험자",
+  3: "자격증 보유자",
+  4: "전공자",
+};
+
+function resumeExperiences(snapshot: DemoResumeSnapshot): string[] {
+  return snapshot.expTags
+    .map((tag) => EXPERIENCE_LABEL_BY_ID[tag.id])
+    .filter((label): label is string => !!label);
+}
+
 export function applyResumeToTalentListItem(
   base: TalentListItem,
   snapshot: DemoResumeSnapshot
 ): TalentListItem {
   const roles = resumeJobRoles(snapshot);
   const primaryEducation = snapshot.educations[0];
+  const experiences = resumeExperiences(snapshot);
 
   return {
     ...base,
     name: snapshot.profile.name,
     introduction: snapshot.profile.introduction,
+    experiences: experiences.length > 0 ? experiences : base.experiences,
     jobRoles: roles.length > 0 ? roles : base.jobRoles,
     skills: resumeSkills(snapshot),
     education: primaryEducation
@@ -56,12 +71,14 @@ export function applyResumeToTalentDetail(
   snapshot: DemoResumeSnapshot
 ): TalentDetailResponse {
   const roles = resumeJobRoles(snapshot);
+  const experiences = resumeExperiences(snapshot);
 
   return {
     ...base,
     name: snapshot.profile.name,
     title: snapshot.profile.title,
     introduction: snapshot.profile.introduction,
+    experiences: experiences.length > 0 ? experiences : base.experiences,
     jobRoles: roles.length > 0 ? roles : base.jobRoles,
     skills: resumeSkills(snapshot),
     languages: resumeLanguageLabels(snapshot),

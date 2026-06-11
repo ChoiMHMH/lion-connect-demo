@@ -35,8 +35,6 @@ type IntroduceCardProps = {
   experiences?: string[];
   /** 리스팅 페이지에서 상세보기 버튼 표시 여부 */
   showDetailButton?: boolean;
-  /** 이름 표시 최대 글자수(초과 시 ...). 목록은 5, 상세는 9 권장 */
-  nameMaxChars?: number;
 };
 
 export default function IntroduceCard(props: IntroduceCardProps) {
@@ -60,7 +58,6 @@ export default function IntroduceCard(props: IntroduceCardProps) {
     workDrivenLevel,
     experiences = [],
     showDetailButton = false,
-    nameMaxChars = 9,
   } = props;
 
   // 프로필 이미지 URL 처리: thumbnailUrl 우선, 없으면 profileImageUrl, 둘 다 없으면 기본 이미지
@@ -139,13 +136,9 @@ export default function IntroduceCard(props: IntroduceCardProps) {
         <div className="px-2.5 w-[599px] inline-flex flex-col justify-start items-start gap-2.5">
           <div className="flex flex-col justify-start items-start gap-6">
             {/* 이름 & 배지 */}
-            <div className="inline-flex justify-start items-center gap-8">
+            <div className="flex flex-wrap justify-start items-center gap-x-8 gap-y-3">
               <div className="p-2 flex justify-center items-center gap-2.5">
-                <h2
-                  className="text-xl font-semibold text-neutral-800 truncate"
-                  style={{ maxWidth: `${nameMaxChars}ch` }}
-                  title={name}
-                >
+                <h2 className="text-xl font-semibold text-neutral-800" title={name}>
                   {name}
                 </h2>
               </div>

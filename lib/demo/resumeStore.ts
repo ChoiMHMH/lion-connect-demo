@@ -177,6 +177,7 @@ export type DemoResumeSnapshot = {
   languages: LanguageResponse[];
   certifications: CertificationResponse[];
   awards: AwardResponse[];
+  expTags: ExpTagResponse[];
   customSkills: CustomSkillResponse[];
   jobCategories: JobCategoryResponse[];
   profileLinks: ProfileLinkResponse[];
@@ -194,6 +195,7 @@ export function getDemoResumeSnapshot(profileId: number): DemoResumeSnapshot | n
     languages: getList(store.languages, profileId),
     certifications: getList(store.certifications, profileId),
     awards: getList(store.awards, profileId),
+    expTags: getList(store.expTags, profileId),
     customSkills: getList(store.customSkills, profileId),
     jobCategories: getList(store.jobCategories, profileId),
     profileLinks: getList(store.profileLinks, profileId),

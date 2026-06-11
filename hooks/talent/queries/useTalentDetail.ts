@@ -24,6 +24,6 @@ export function useTalentDetail({ profileId, enabled = true }: UseTalentDetailOp
     queryFn: () => getTalentDetail(profileId),
     enabled: enabled && !!profileId,
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: 0,
   });
 }

@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { getDemoTalent, listDemoTalents, resetDemoRoleStore } from "@/lib/demo/roleStore";
-import { getDemoProfile, resetDemoResumeStore, updateDemoProfile } from "@/lib/demo/resumeStore";
+import {
+  getDemoProfile,
+  resetDemoResumeStore,
+  updateDemoExpTags,
+  updateDemoProfile,
+} from "@/lib/demo/resumeStore";
 import type { ProfileRequest } from "@/types/talent";
 
 function setVisibility(visibility: "PUBLIC" | "PRIVATE", overrides: Partial<ProfileRequest> = {}) {
@@ -70,5 +75,17 @@ describe("인재 탐색 ↔ 이력서 동기화", () => {
 
     const res = listDemoTalents(new URLSearchParams());
     expect(res.content.find((t) => t.id === 1)?.name).toBe("수정된 인재");
+  });
+
+  it("이력서 직무 관련 경험 수정이 목록과 상세 경험 배지에 모두 반영된다", () => {
+    publishResume();
+    updateDemoExpTags(1, { ids: [1, 2, 3, 4] });
+
+    const res = listDemoTalents(new URLSearchParams());
+    const detail = getDemoTalent(1);
+    const expectedExperiences = ["부트캠프 경험자", "창업 경험자", "자격증 보유자", "전공자"];
+
+    expect(res.content.find((t) => t.id === 1)?.experiences).toEqual(expectedExperiences);
+    expect(detail.experiences).toEqual(expectedExperiences);
   });
 });
