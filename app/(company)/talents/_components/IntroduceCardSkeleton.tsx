@@ -1,6 +1,9 @@
 export default function IntroduceCardSkeleton() {
   return (
-    <section className="mx-auto mb-6 rounded-2xl bg-white p-8">
+    <section
+      data-testid="introduce-card-skeleton"
+      className="mx-auto mb-6 rounded-2xl bg-white p-8"
+    >
       <div className="inline-flex justify-start items-center gap-12">
         {/* 왼쪽: 프로필 스켈레톤 */}
         <div className="w-40 inline-flex flex-col justify-start items-start gap-8">

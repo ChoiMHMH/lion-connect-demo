@@ -1,0 +1,53 @@
+goal: >
+  데모 모드 이력서 데이터를 브라우저 단일 소스로 영속화하여 새로고침/페이지 이동 시
+  수정값이 보존되도록 하고(#2/#4), 공개 토글이 인재탐색에 즉시 반영되며(#3),
+  /talents 첫 페인트의 Footer 점프/플래시를 제거한다(#1).
+  구조화 JSON 상태는 localStorage, 업로드 바이너리는 IndexedDB에 저장한다.
+
+risk_level: "Level 3"
+
+ambiguity_score: 0.15  # 증상/원인 명확. 업로드 서빙 메커니즘(SW)이 유일한 불확실 지점 → 별도 task로 격리.
+
+constraints:
+  - "비데모(실서버 API) 경로의 동작과 계약은 변경하지 않는다."
+  - "데모 데이터 shape(ProfileResponse 등 타입)은 변경하지 않는다."
+  - "서버 /api/demo 라우트는 SSR/비브라우저 폴백으로 유지한다(삭제 금지)."
+  - "구조화 JSON은 localStorage, 업로드 Blob은 IndexedDB. 이미지를 localStorage에 base64로 넣지 않는다."
+  - "데모 시드 초기화는 저장소가 비었을 때 최초 1회만 수행한다."
+  - "두 스토어 간 단방향 의존(roleStore -> resumeStore snapshot)을 유지한다(순환 의존 금지)."
+  - "wsl bash -lc 로 npm/tsc/test 실행(UNC 경로 에러 회피)."
+  - "--no-verify 훅 우회 금지. main 직접 커밋/push 금지."
+
+acceptance_criteria:
+  - "이력서 이름 수정 후 새로고침 다회 반복해도 항상 수정값 표시(#2). 시드값 복귀 없음."
+  - "수정 -> 작성 완료 -> 목록 이동 시 수정값 유지(#4). 시드 초기화는 최초 1회만."
+  - "공개 토글 후 기업 인재탐색 진입 시 이전 값 노출 없이 즉시 정확 상태 반영(#3)."
+  - "/talents 새로고침 시 Footer 선노출/점프/플래시 없음. 첫 페인트부터 스켈레톤 자리 고정(#1)."
+  - "업로드한 이미지/포트폴리오가 새로고침 후에도 표시됨(IndexedDB 영속)."
+  - "데모 리셋 경로로 localStorage + IndexedDB 초기화 가능."
+  - "기존 lib/demo/__tests__/* 회귀 없음. 신규 영속/캐시/UI 테스트 통과. tsc/lint 통과."
+
+non_goals:
+  - "실서버(api.maple109.store) 연동/계약 변경."
+  - "인증/권한 로직 변경."
+  - "데모 데이터 모델/시드 콘텐츠 확장."
+  - "비데모 사용자 경험 변경."
+  - "PWA 전체 도입(SW는 /api/demo/uploads/* 서빙 용도로만 국소 사용)."
+
+mechanical_gates:
+  - "wsl bash -lc 'npm run type-check'"
+  - "wsl bash -lc 'npm run lint'"
+  - "wsl bash -lc 'npm test'"
+
+drift_triggers:
+  - "계획 외 파일/도메인 수정(비데모 apiClient 분기, 실서버 코드 등)"
+  - "데모 데이터 타입/shape 변경"
+  - "acceptance criteria 재해석"
+  - "새 dependency 추가(SW는 무의존 직접 작성)"
+  - "업로드 서빙을 SW 대신 다른 메커니즘으로 변경"
+
+approval_required_when:
+  - "drift score가 임계값 이상"
+  - "seed의 goal/constraints/acceptance_criteria 변경 필요"
+  - "non_goals에 포함된 작업이 필요해짐"
+  - "업로드 서빙 메커니즘을 SW에서 변경하거나, 업로드 영속을 포기(서버 폴백 유지)해야 할 때"
