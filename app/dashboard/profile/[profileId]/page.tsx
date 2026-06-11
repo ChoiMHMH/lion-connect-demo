@@ -70,6 +70,7 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const [isUserVerified, setIsUserVerified] = useState(false);
+  const [isTempSaving, setIsTempSaving] = useState(false);
   const showToast = useToastStore((state) => state.showToast);
 
   // URL에서 profileId 추출 (React.use()로 Promise unwrap)
@@ -122,23 +123,33 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
    * - dirty/valid 상태를 유지하고 서버에서 생성된 ID만 업데이트
    */
   const handleTempSave = async () => {
-    const currentValues = methods.getValues();
-    const result = await submitTalentRegister({
-      values: currentValues,
-      methods,
-      profileId,
-      isTempSave: true,
-    });
+    // 진행 중이면 중복 저장 방지
+    if (isTempSaving) {
+      return;
+    }
 
-    if (result.success) {
-      if (result.data) {
-        // 임시 저장: 서버에서 받은 전체 데이터(ID 포함)로 reset하여 defaultValues 업데이트
-        // 이렇게 해야 다시 임시저장 시 POST가 아닌 PUT이 호출됨
-        methods.reset(result.data, { keepTouched: true, keepErrors: true });
+    const currentValues = methods.getValues();
+    setIsTempSaving(true);
+    try {
+      const result = await submitTalentRegister({
+        values: currentValues,
+        methods,
+        profileId,
+        isTempSave: true,
+      });
+
+      if (result.success) {
+        if (result.data) {
+          // 임시 저장: 서버에서 받은 전체 데이터(ID 포함)로 reset하여 defaultValues 업데이트
+          // 이렇게 해야 다시 임시저장 시 POST가 아닌 PUT이 호출됨
+          methods.reset(result.data, { keepTouched: true, keepErrors: true });
+        }
+        showToast("임시 저장되었습니다!");
+      } else {
+        // TODO: 에러 처리
       }
-      showToast("임시 저장되었습니다!");
-    } else {
-      // TODO: 에러 처리
+    } finally {
+      setIsTempSaving(false);
     }
   };
 
@@ -266,9 +277,10 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
     }
   };
 
-  // mode: "onSubmit"에서는 submit 전까지 isValid가 정확하지 않음
-  // 버튼은 항상 활성화하고, validation은 handleSubmit에서 처리
-  const isSubmitDisabled = false;
+  // mode: "onSubmit"에서는 submit 전까지 isValid가 정확하지 않으므로 항상 활성화하되,
+  // 제출/임시저장 진행 중에는 비활성화하여 연속 클릭으로 인한 중복 API 요청을 막는다.
+  // isSubmitting은 async onSubmit이 진행되는 동안 RHF가 자동으로 true로 관리한다.
+  const { isSubmitting } = methods.formState;
 
   return (
     <FormProvider {...methods}>
@@ -277,7 +289,8 @@ export default function TalentRegisterPage({ params }: { params: Promise<{ profi
         <TalentRegisterNav
           onTempSave={handleTempSave}
           formId="talent-register-form"
-          isSubmitDisabled={isSubmitDisabled}
+          isSubmitting={isSubmitting}
+          isTempSaving={isTempSaving}
         />
 
         {/* Main Form */}

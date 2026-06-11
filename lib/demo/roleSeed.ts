@@ -33,6 +33,18 @@ export const demoPublicJobs: PublicJobPosting[] = [
     thumbnailImageUrl: "/demo/demo-cover2.png",
     publishedAt: DEMO_ROLE_NOW,
   },
+  {
+    jobPostingId: 9003,
+    title: "디자인 시스템 프론트엔드 개발자",
+    companyName: "데모커머스",
+    jobGroupName: "개발",
+    jobRoleName: "프론트엔드",
+    employmentType: "FULL_TIME",
+    workplaceShort: "서울 강남",
+    thumbnailImageKey: null,
+    thumbnailImageUrl: "/demo/demo-cover.png",
+    publishedAt: DEMO_ROLE_NOW,
+  },
 ];
 
 export const demoJobDetails: JobDetailResponse[] = [
@@ -96,6 +108,40 @@ export const demoJobDetails: JobDetailResponse[] = [
         sortOrder: 1,
         url: "/demo/demo-cover2.png",
         fileUrl: "/demo/demo-cover2.png",
+      },
+    ],
+    myJobApplicationId: null,
+    myJobApplicationStatus: null,
+    applied: false,
+  },
+  {
+    jobPostingId: 9003,
+    title: "디자인 시스템 프론트엔드 개발자",
+    employmentType: "FULL_TIME",
+    jobDescription:
+      "아직 게시하지 않은 채용공고 예시입니다. 게시하기 전에는 인재 랜딩 페이지에 노출되지 않습니다.",
+    mainTasks: "공통 컴포넌트 설계, 디자인 토큰 관리, 사용 가이드 문서화",
+    requirements: "React, TypeScript 실무 경험",
+    preferred: "디자인 시스템 구축 또는 운영 경험",
+    benefits: "유연근무, 교육비 지원, 코드 리뷰 문화",
+    hiringProcess: "서류 검토 -> 인터뷰 -> 최종 합류",
+    workplace: "서울특별시 강남구 데모로 19",
+    companyName: "데모커머스",
+    courseName: "멋쟁이사자처럼 프론트엔드 스쿨",
+    courseGeneration: 13,
+    jobGroupName: "개발",
+    jobRoleId: 1,
+    jobRoleName: "프론트엔드",
+    publishedAt: DEMO_ROLE_NOW,
+    images: [
+      {
+        objectKey: "demo/demo-cover.png",
+        contentType: "image/png",
+        fileSize: 1024,
+        originalFilename: "demo-cover.png",
+        sortOrder: 1,
+        url: "/demo/demo-cover.png",
+        fileUrl: "/demo/demo-cover.png",
       },
     ],
     myJobApplicationId: null,
@@ -221,8 +267,17 @@ export const demoApplications: JobApplication[] = [
   },
 ];
 
-export const demoApplicants: CompanyApplicant[] = [
+/**
+ * 데모 전용 지원자 타입.
+ * 실제 API는 `/company/job-postings/{jobId}/applications` 처럼 URL로 공고가 결정되어
+ * 응답에 jobPostingId가 없으므로, 공용 CompanyApplicant는 그대로 두고
+ * 데모 store에서 공고별 필터링을 위해서만 jobPostingId를 덧붙인다.
+ */
+export type DemoApplicant = CompanyApplicant & { jobPostingId: number };
+
+export const demoApplicants: DemoApplicant[] = [
   {
+    jobPostingId: 9001,
     applicantName: "데모 인재",
     jobGroupName: "개발",
     jobRoleName: "프론트엔드",
@@ -295,7 +350,7 @@ export type DemoRoleSeed = {
   talents: TalentListItem[];
   talentDetails: TalentDetailResponse[];
   applications: JobApplication[];
-  applicants: CompanyApplicant[];
+  applicants: DemoApplicant[];
   adminUsers: AdminUsersResponse["content"];
   adminCompanies: AdminCompaniesResponse["content"];
   inquiries: InquiryListResponse["content"];
@@ -315,7 +370,8 @@ export const demoRoleSeed: DemoRoleSeed = {
   inquiries: demoInquiries,
   jobStatuses: {
     9001: "PUBLISHED",
-    9002: "DRAFT",
+    9002: "PUBLISHED",
+    9003: "DRAFT",
   },
   nextApplicationId: 8002,
 };

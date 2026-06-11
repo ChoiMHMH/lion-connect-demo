@@ -44,7 +44,7 @@ export const demoResumeSeed: DemoResumeData = {
       storageUrl: "/demo-assets/profile-1/portfolio.pdf",
       likelionCode: "DEMO-2026",
       visibility: "PRIVATE",
-      status: "DRAFT",
+      status: "COMPLETED",
       locked: false,
       createdAt: DEMO_RESUME_NOW,
       updatedAt: DEMO_RESUME_NOW,

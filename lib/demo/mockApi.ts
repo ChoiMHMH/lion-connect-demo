@@ -53,6 +53,7 @@ import {
   getDemoPublicJobPosting,
   getDemoTalent,
   listDemoAdminCompanies,
+  listDemoAdminJobPostings,
   listDemoAdminUsers,
   listDemoApplicants,
   listDemoApplications,
@@ -468,7 +469,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     segments[3] === "applications" &&
     method === "GET"
   ) {
-    return jsonResponse(listDemoApplicants(searchParams));
+    return jsonResponse(listDemoApplicants(parseId(segments[2], "job posting id"), searchParams));
   }
 
   if (
@@ -577,7 +578,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
   }
 
   if (path === "/admin/job-postings" && method === "GET") {
-    return jsonResponse(listDemoPublicJobPostings(searchParams));
+    return jsonResponse(listDemoAdminJobPostings(searchParams));
   }
 
   if (
@@ -586,7 +587,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
     segments[3] === "applications" &&
     method === "GET"
   ) {
-    return jsonResponse(listDemoApplicants(searchParams));
+    return jsonResponse(listDemoApplicants(parseId(segments[2], "job posting id"), searchParams));
   }
 
   return null;

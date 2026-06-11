@@ -1,4 +1,9 @@
-import { demoRoleSeed, DEMO_ROLE_NOW, type DemoRoleSeed } from "@/lib/demo/roleSeed";
+import {
+  demoRoleSeed,
+  DEMO_ROLE_NOW,
+  type DemoApplicant,
+  type DemoRoleSeed,
+} from "@/lib/demo/roleSeed";
 import { findJobRoleById } from "@/constants/jobMapping";
 import type {
   AdminCompaniesResponse,
@@ -106,6 +111,10 @@ function getJobStatus(jobId: number): JobPostingStatus {
   return store.jobStatuses[jobId] ?? "DRAFT";
 }
 
+function countDemoApplicants(jobId: number) {
+  return store.applicants.filter((applicant) => applicant.jobPostingId === jobId).length;
+}
+
 function setJobStatus(jobId: number, status: JobPostingStatus) {
   store.jobStatuses[jobId] = status;
 }
@@ -151,7 +160,7 @@ function toJobPostingResponse(jobId: number): JobPostingResponse {
     status: getJobStatus(jobId) === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
     publishedAt: publicJob.publishedAt,
     createdAt: publicJob.publishedAt,
-    totalApplicationsCount: store.applicants.length,
+    totalApplicationsCount: countDemoApplicants(jobId),
   };
 }
 
@@ -212,6 +221,13 @@ function toPublicJobPostingResponse(
 }
 
 export function listDemoPublicJobPostings(searchParams: URLSearchParams) {
+  // 인재 랜딩에는 게시중(PUBLISHED) 공고만 노출한다.
+  const publishedJobs = store.jobs.filter((job) => getJobStatus(job.jobPostingId) === "PUBLISHED");
+  return toPublicJobPostingResponse(searchParams, publishedJobs);
+}
+
+export function listDemoAdminJobPostings(searchParams: URLSearchParams) {
+  // 관리자는 게시 여부와 무관하게 전체 공고를 조회한다.
   return toPublicJobPostingResponse(searchParams);
 }
 
@@ -226,7 +242,7 @@ export function listDemoCompanyJobPostings(searchParams: URLSearchParams) {
       status: getJobStatus(job.jobPostingId),
       publishedAt: job.publishedAt,
       createdAt: job.publishedAt,
-      totalApplicationsCount: store.applicants.length,
+      totalApplicationsCount: countDemoApplicants(job.jobPostingId),
       thumbnailImageUrl: job.thumbnailImageUrl,
     })),
     page,
@@ -376,6 +392,7 @@ export function deleteDemoCompanyJobPosting(jobId: number) {
   store.applications = store.applications.filter(
     (application) => application.jobPostingId !== jobId
   );
+  store.applicants = store.applicants.filter((applicant) => applicant.jobPostingId !== jobId);
   delete store.jobStatuses[jobId];
 }
 
@@ -423,6 +440,25 @@ export function applyDemoJob(jobId: number, talentProfileId: number): ApplyJobRe
     detail.myJobApplicationStatus = "APPLIED";
   }
 
+  // 지원한 인재를 해당 공고의 지원자 현황에 반영 (공고당 동일 인재 중복 방지)
+  const alreadyApplied = store.applicants.some(
+    (applicant) => applicant.jobPostingId === jobId && applicant.talentProfileId === talentProfileId
+  );
+  if (!alreadyApplied) {
+    const talent = store.talentDetails.find((item) => item.id === talentProfileId);
+    const applicant: DemoApplicant = {
+      jobPostingId: jobId,
+      applicantName: talent?.name ?? "지원자",
+      jobGroupName: job.jobGroupName,
+      jobRoleName: job.jobRoleName,
+      appliedAt: now(),
+      applicationStatus: "APPLIED",
+      talentProfileId,
+      talentProfileTitle: talent?.title ?? "",
+    };
+    store.applicants.push(applicant);
+  }
+
   return {
     jobApplicationId: application.jobApplicationId,
     jobPostingId: job.jobPostingId,
@@ -432,9 +468,20 @@ export function applyDemoJob(jobId: number, talentProfileId: number): ApplyJobRe
 }
 
 export function cancelDemoApplication(jobApplicationId: number) {
+  const canceled = store.applications.find(
+    (application) => application.jobApplicationId === jobApplicationId
+  );
+
   store.applications = store.applications.filter(
     (application) => application.jobApplicationId !== jobApplicationId
   );
+
+  // 취소된 지원 건이 속한 공고의 지원자 현황에서도 제거 (데모는 공고당 지원자 1명)
+  if (canceled) {
+    store.applicants = store.applicants.filter(
+      (applicant) => applicant.jobPostingId !== canceled.jobPostingId
+    );
+  }
 
   store.jobDetails.forEach((job) => {
     if (job.myJobApplicationId === jobApplicationId) {
@@ -472,9 +519,13 @@ export function updateDemoTalentThumbnail(profileId: number, thumbnailUrl: strin
   );
 }
 
-export function listDemoApplicants(searchParams: URLSearchParams): CompanyApplicantsResponse {
+export function listDemoApplicants(
+  jobId: number,
+  searchParams: URLSearchParams
+): CompanyApplicantsResponse {
   const { page, size } = pageParams(searchParams, 10);
-  return paged(store.applicants, page, size);
+  const applicants = store.applicants.filter((applicant) => applicant.jobPostingId === jobId);
+  return paged(applicants, page, size);
 }
 
 export function listDemoAdminUsers(searchParams: URLSearchParams): AdminUsersResponse {
