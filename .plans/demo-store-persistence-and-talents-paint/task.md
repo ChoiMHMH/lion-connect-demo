@@ -155,6 +155,9 @@ T4 -> T7(업로드 IndexedDB + SW)
 
 ## T7 - 업로드 바이너리 IndexedDB 영속 + SW 서빙
 
+> 상태: **후속 PR로 분리(사용자 승인 2026-06-12)**. T1~T6가 보고된 버그(#1~#4)를 모두 해결하므로
+> 이 PR에서는 제외한다. 업로드는 현재 서버 라우트 폴스루로 동작(회귀 없음). 별도 이슈에서 SW로 영속화.
+
 **보장할 동작**
 - 업로드한 이미지/포트폴리오가 새로고침 후에도 표시. `/api/demo/uploads/*` 요청을 Service Worker가 IndexedDB에서 서빙(컴포넌트 변경 없이 `<img src>` 동작).
 - SW 미지원/실패 시 서버 라우트 폴백으로 graceful degrade.
@@ -176,6 +179,8 @@ T4 -> T7(업로드 IndexedDB + SW)
 ---
 
 ## T8 - 통합 검증 + 회귀 + 평가
+
+> 스코프: T1~T6 한정(T7 제외). T7 영속 검증은 후속 PR에서 수행.
 
 **보장할 동작**
 - acceptance_criteria 전 항목 통과. evaluation Stage 1/2/3 + drift 확인.
