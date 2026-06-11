@@ -38,7 +38,7 @@ describe("demo resume mock API", () => {
     expect(list.body).toEqual([
       expect.objectContaining({
         id: 1,
-        status: "DRAFT",
+        status: "COMPLETED",
         title: "프론트엔드 포트폴리오 이력서",
       }),
     ]);
