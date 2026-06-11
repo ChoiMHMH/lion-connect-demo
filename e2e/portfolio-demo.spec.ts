@@ -25,14 +25,10 @@ test.describe("portfolio demo mode", () => {
   });
 
   test("enters talent demo and records browser API traffic", async ({ page }) => {
-    const profileResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/demo/profile/me?profileId=1") && response.status() === 200
-    );
-
+    // 데모 API는 브라우저에서 로컬 디스패치되므로 네트워크 응답을 기다리지 않고,
+    // 로드된 UI와 Demo API 로그(클라이언트 기록)로 검증한다.
     await page.goto("/demo/enter/talent?returnTo=/dashboard/profile/1");
     await expect(page).toHaveURL(/\/dashboard\/profile\/1$/);
-    await profileResponse;
 
     await expectDemoHeader(page, "인재 데모");
     await expect(page.getByPlaceholder("이력서 제목")).toBeVisible();
@@ -43,28 +39,16 @@ test.describe("portfolio demo mode", () => {
   });
 
   test("allows company demo access to the protected talent search route", async ({ page }) => {
-    const talentSearchResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/demo/profiles/search") && response.status() === 200
-    );
-
     await page.goto("/demo/enter/company?returnTo=/talents");
     await expect(page).toHaveURL(/\/talents$/);
-    await talentSearchResponse;
 
     await expectDemoHeader(page, "기업 데모");
     await expect(page.getByText(/총\s+\d+명/)).toBeVisible();
   });
 
   test("allows admin demo access to the protected admin route", async ({ page }) => {
-    const inquiriesResponse = page.waitForResponse(
-      (response) =>
-        response.url().includes("/api/demo/admin/inquiries") && response.status() === 200
-    );
-
     await page.goto("/demo/enter/admin?returnTo=/admin/inquiries");
     await expect(page).toHaveURL(/\/admin\/inquiries$/);
-    await inquiriesResponse;
 
     await expectDemoHeader(page, "관리자 데모");
     await expect(page.getByText("담당자명")).toBeVisible();
