@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { cn } from "@/utils/utils";
+import { isClientServedImage } from "@/utils/imageSrc";
 
 interface JobCardProps extends React.HTMLAttributes<HTMLDivElement> {
   jobPostingId: number;
@@ -49,6 +50,7 @@ export function JobCard({
           className="object-cover scale-110 blur-xl opacity-45"
           sizes="275px"
           priority={false}
+          unoptimized={isClientServedImage(imageUrl)}
         />
         <Image
           src={imageUrl}
@@ -57,6 +59,7 @@ export function JobCard({
           className="object-contain relative z-10"
           sizes="275px"
           priority={false}
+          unoptimized={isClientServedImage(imageUrl)}
         />
         <div className="w-6 h-6 left-[222px] top-[10px] absolute z-20" />
       </div>

@@ -12,6 +12,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/utils/utils";
+import { isClientServedImage } from "@/utils/imageSrc";
 
 import type { JobImageMetadata } from "@/types/job";
 
@@ -59,7 +60,7 @@ export function ImageUpload({
   existingImageMetadata = [],
   onExistingImagesChange,
   maxImages = 5,
-  error
+  error,
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // 초기 미리보기 URL은 기존 이미지 URL들로 설정
@@ -78,7 +79,7 @@ export function ImageUpload({
     const totalFiles = [...value, ...filesToAdd];
 
     // 새로 추가된 파일들의 미리보기 URL만 생성
-    const newFileUrls = filesToAdd.map(file => URL.createObjectURL(file));
+    const newFileUrls = filesToAdd.map((file) => URL.createObjectURL(file));
     setPreviewUrls([...previewUrls, ...newFileUrls]);
 
     onChange?.(totalFiles);
@@ -124,6 +125,7 @@ export function ImageUpload({
             alt={`Preview ${index + 1}`}
             fill
             sizes="288px"
+            unoptimized={isClientServedImage(url)}
           />
           <button
             type="button"
