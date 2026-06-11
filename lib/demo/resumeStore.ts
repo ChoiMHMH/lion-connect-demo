@@ -1,6 +1,7 @@
 import { findJobRoleById } from "@/constants/jobMapping";
 import { EXP_TAG_ID_MAP } from "@/lib/expTags/map";
 import { demoResumeSeed, DEMO_RESUME_NOW, type DemoProfileRecord } from "@/lib/demo/resumeSeed";
+import { isBrowser, loadDemoJson, removeDemoJson, saveDemoJson } from "@/lib/demo/persistence";
 import type {
   AwardRequest,
   AwardResponse,
@@ -78,8 +79,44 @@ function buildStore(): DemoResumeStore {
   };
 }
 
-let store = buildStore();
+const RESUME_STORE_KEY = "resume-store";
+const RESUME_STORE_VERSION = 1;
+
+type PersistedResumeStore = { version: number; data: DemoResumeStore };
+
+/**
+ * 브라우저에서는 localStorage에 저장된 데모 스토어로 hydrate한다.
+ * 저장값이 없거나 버전이 다르면 시드로 빌드하고 최초 1회 저장한다(#4: 초기화는 한 번만).
+ * SSR/비브라우저에서는 항상 시드로 빌드(영속 no-op).
+ */
+function loadOrBuildStore(): DemoResumeStore {
+  if (isBrowser()) {
+    const saved = loadDemoJson<PersistedResumeStore>(RESUME_STORE_KEY);
+    if (saved && saved.version === RESUME_STORE_VERSION && saved.data) {
+      return saved.data;
+    }
+  }
+  const built = buildStore();
+  if (isBrowser()) {
+    saveDemoJson<PersistedResumeStore>(RESUME_STORE_KEY, {
+      version: RESUME_STORE_VERSION,
+      data: built,
+    });
+  }
+  return built;
+}
+
+let store = loadOrBuildStore();
 const uploadedFiles = new Map<string, { body: ArrayBuffer; contentType: string }>();
+
+/** 현재 스토어 상태를 localStorage에 직렬화한다(브라우저 한정). */
+export function persistResumeStore() {
+  if (!isBrowser()) return;
+  saveDemoJson<PersistedResumeStore>(RESUME_STORE_KEY, {
+    version: RESUME_STORE_VERSION,
+    data: store,
+  });
+}
 
 function now() {
   return new Date().toISOString();
@@ -163,6 +200,9 @@ function deleteSectionItem<T extends DemoSectionItem>(
 export function resetDemoResumeStore() {
   store = buildStore();
   uploadedFiles.clear();
+  if (isBrowser()) {
+    removeDemoJson(RESUME_STORE_KEY);
+  }
 }
 
 /**

@@ -12,6 +12,7 @@ import {
 } from "@/constants/jobMapping";
 import { getDemoResumeSnapshot } from "@/lib/demo/resumeStore";
 import { applyResumeToTalentDetail, applyResumeToTalentListItem } from "@/lib/demo/talentAdapter";
+import { isBrowser, loadDemoJson, removeDemoJson, saveDemoJson } from "@/lib/demo/persistence";
 import type {
   AdminCompaniesResponse,
   AdminUsersResponse,
@@ -104,13 +105,41 @@ function paged<T>(items: T[], page: number, size: number) {
   };
 }
 
-let store: DemoRoleSeed = clone(demoRoleSeed);
+const ROLE_STORE_KEY = "role-store";
+const ROLE_STORE_VERSION = 1;
+
+type PersistedRoleStore = { version: number; data: DemoRoleSeed };
+
+function loadOrBuildRoleStore(): DemoRoleSeed {
+  if (isBrowser()) {
+    const saved = loadDemoJson<PersistedRoleStore>(ROLE_STORE_KEY);
+    if (saved && saved.version === ROLE_STORE_VERSION && saved.data) {
+      return saved.data;
+    }
+  }
+  const built = clone(demoRoleSeed);
+  if (isBrowser()) {
+    saveDemoJson<PersistedRoleStore>(ROLE_STORE_KEY, { version: ROLE_STORE_VERSION, data: built });
+  }
+  return built;
+}
+
+let store: DemoRoleSeed = loadOrBuildRoleStore();
 
 /** 인재 데모 이력서(resumeStore profile id=1)와 매칭되는 인재 탐색 talent id. */
 const RESUME_TALENT_ID = 1;
 
+/** 현재 역할 스토어 상태를 localStorage에 직렬화한다(브라우저 한정). */
+export function persistRoleStore() {
+  if (!isBrowser()) return;
+  saveDemoJson<PersistedRoleStore>(ROLE_STORE_KEY, { version: ROLE_STORE_VERSION, data: store });
+}
+
 export function resetDemoRoleStore() {
   store = clone(demoRoleSeed);
+  if (isBrowser()) {
+    removeDemoJson(ROLE_STORE_KEY);
+  }
 }
 
 function now() {

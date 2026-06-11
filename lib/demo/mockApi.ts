@@ -40,6 +40,7 @@ import {
   updateDemoLanguage,
   updateDemoProfile,
   upsertDemoProfileLinks,
+  persistResumeStore,
 } from "@/lib/demo/resumeStore";
 import {
   applyDemoJob,
@@ -69,6 +70,7 @@ import {
   updateDemoCompanyJobPosting,
   updateDemoTalentThumbnail,
   updateDemoInquiryStatus,
+  persistRoleStore,
 } from "@/lib/demo/roleStore";
 import type {
   ImageUploadCompleteRequest,
@@ -99,6 +101,17 @@ type DemoHandlerContext = {
 
 function jsonResponse(body: unknown, status = 200) {
   return Response.json(body, { status });
+}
+
+/**
+ * 변경(non-GET) 요청이 성공하면 두 스토어를 localStorage에 직렬화한다.
+ * 서버/클라이언트 디스패치 공용 choke point. 서버(SSR)에서는 영속이 no-op이다.
+ */
+function persistAfterMutation(method: string, response: Response) {
+  if (method === "GET") return;
+  if (response.status >= 400) return;
+  persistResumeStore();
+  persistRoleStore();
 }
 
 function noContentResponse() {
@@ -635,18 +648,16 @@ export async function handleDemoApiRequest(request: Request, pathSegments: strin
       }
     }
 
-    const profileResponse = await handleProfileRoutes(context);
-    if (profileResponse) return profileResponse;
+    const response =
+      (await handleProfileRoutes(context)) ??
+      (await handleRolePageRoutes(context)) ??
+      (segments[0] === "profile"
+        ? ((await handleArraySectionRoutes(context)) ?? (await handleChoiceSectionRoutes(context)))
+        : null);
 
-    const rolePageResponse = await handleRolePageRoutes(context);
-    if (rolePageResponse) return rolePageResponse;
-
-    if (segments[0] === "profile") {
-      const arraySectionResponse = await handleArraySectionRoutes(context);
-      if (arraySectionResponse) return arraySectionResponse;
-
-      const choiceSectionResponse = await handleChoiceSectionRoutes(context);
-      if (choiceSectionResponse) return choiceSectionResponse;
+    if (response) {
+      persistAfterMutation(context.method, response);
+      return response;
     }
 
     return errorResponse(`No demo API handler for ${context.method} ${path}`, 404);
