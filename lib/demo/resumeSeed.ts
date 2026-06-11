@@ -43,7 +43,7 @@ export const demoResumeSeed: DemoResumeData = {
         "Next.js, React Query, React Hook Form 기반 제품 화면을 설계하고 안정적으로 연결하는 프론트엔드 개발자입니다.",
       storageUrl: "/demo-assets/profile-1/portfolio.pdf",
       likelionCode: "DEMO-2026",
-      visibility: "PRIVATE",
+      visibility: "PUBLIC",
       status: "COMPLETED",
       locked: false,
       createdAt: DEMO_RESUME_NOW,
