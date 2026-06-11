@@ -10,6 +10,8 @@ import {
   findJobRoleByCode,
   findJobRoleById,
 } from "@/constants/jobMapping";
+import { getDemoResumeSnapshot } from "@/lib/demo/resumeStore";
+import { applyResumeToTalentDetail, applyResumeToTalentListItem } from "@/lib/demo/talentAdapter";
 import type {
   AdminCompaniesResponse,
   AdminUsersResponse,
@@ -103,6 +105,9 @@ function paged<T>(items: T[], page: number, size: number) {
 }
 
 let store: DemoRoleSeed = clone(demoRoleSeed);
+
+/** 인재 데모 이력서(resumeStore profile id=1)와 매칭되는 인재 탐색 talent id. */
+const RESUME_TALENT_ID = 1;
 
 export function resetDemoRoleStore() {
   store = clone(demoRoleSeed);
@@ -536,6 +541,22 @@ function resolveTalentRoleNames(
   return null;
 }
 
+/**
+ * 이력서와 매칭되는 talent(id=1)는 이력서 스냅샷으로 합성하고,
+ * 이력서가 비공개(PRIVATE)면 목록에서 제외한다. 그 외 가짜 인재는 그대로 둔다.
+ */
+function resolveTalentsWithResume(): TalentListItem[] {
+  return store.talents.flatMap((talent) => {
+    if (talent.id !== RESUME_TALENT_ID) return [talent];
+
+    const snapshot = getDemoResumeSnapshot(RESUME_TALENT_ID);
+    if (!snapshot) return [talent];
+    if (snapshot.profile.visibility !== "PUBLIC") return [];
+
+    return [applyResumeToTalentListItem(talent, snapshot)];
+  });
+}
+
 export function listDemoTalents(searchParams: URLSearchParams): TalentListResponse {
   const keyword = searchParams.get("keyword")?.trim().toLowerCase();
   const roleNames = resolveTalentRoleNames(
@@ -543,7 +564,7 @@ export function listDemoTalents(searchParams: URLSearchParams): TalentListRespon
     searchParams.get("jobRoleId")
   );
 
-  const filtered = store.talents.filter((talent) => {
+  const filtered = resolveTalentsWithResume().filter((talent) => {
     if (keyword) {
       const haystack = [talent.name, talent.introduction, ...talent.skills, ...talent.jobRoles]
         .join(" ")
@@ -561,7 +582,20 @@ export function listDemoTalents(searchParams: URLSearchParams): TalentListRespon
 }
 
 export function getDemoTalent(profileId: number): TalentDetailResponse {
-  return clone(getTalentDetail(profileId));
+  const base = getTalentDetail(profileId);
+
+  if (profileId === RESUME_TALENT_ID) {
+    const snapshot = getDemoResumeSnapshot(RESUME_TALENT_ID);
+    if (snapshot) {
+      // 비공개 이력서는 공개 인재 상세로 노출하지 않는다(목록 정책과 통일).
+      if (snapshot.profile.visibility !== "PUBLIC") {
+        throw new Error(`Demo talent ${profileId} was not found`);
+      }
+      return clone(applyResumeToTalentDetail(base, snapshot));
+    }
+  }
+
+  return clone(base);
 }
 
 export function updateDemoTalentThumbnail(profileId: number, thumbnailUrl: string) {
