@@ -11,6 +11,10 @@ interface ConfirmModalProps {
   cancelLabel: string;
   onClose: () => void;
   onConfirm: () => void;
+  /** 취소 버튼 숨김 (성공/안내용 단일 확인 모달) */
+  hideCancel?: boolean;
+  /** 확인 버튼 색상. 기본 danger(빨강), primary(브랜드) 선택 가능 */
+  tone?: "danger" | "primary";
 }
 
 export function ConfirmModal({
@@ -21,6 +25,8 @@ export function ConfirmModal({
   cancelLabel,
   onClose,
   onConfirm,
+  hideCancel = false,
+  tone = "danger",
 }: ConfirmModalProps) {
   useEffect(() => {
     if (!open) return;
@@ -44,10 +50,7 @@ export function ConfirmModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      role="presentation"
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="presentation">
       <div
         className="absolute inset-0 bg-black/50 transition-opacity duration-200"
         onClick={handleBackdropClick}
@@ -66,9 +69,7 @@ export function ConfirmModal({
       >
         <div className="self-stretch py-5 flex flex-col justify-center items-start gap-2.5">
           <div className="px-5 flex justify-start items-center gap-2.5">
-            <h2 className="text-black text-xl font-bold font-['Pretendard'] leading-7">
-              {title}
-            </h2>
+            <h2 className="text-black text-xl font-bold font-['Pretendard'] leading-7">{title}</h2>
           </div>
           {description && (
             <div className="self-stretch px-5 flex justify-start items-center gap-2.5">
@@ -80,32 +81,39 @@ export function ConfirmModal({
         </div>
 
         <div className="self-stretch  px-5 pb-5 flex justify-end items-center gap-3">
-          <button
-            data-color="default"
-            data-state="default"
-            data-type="cancel"
-            onClick={onClose}
-            className={cn(
-              "px-2 py-1 rounded flex cursor-pointer justify-center items-center gap-2.5",
-              "hover:bg-neutral-100 transition-colors"
-            )}
-          >
-            <span className="text-neutral-500 text-sm font-semibold font-['Pretendard'] leading-5">
-              {cancelLabel}
-            </span>
-          </button>
+          {!hideCancel && (
+            <button
+              data-color="default"
+              data-state="default"
+              data-type="cancel"
+              onClick={onClose}
+              className={cn(
+                "px-2 py-1 rounded flex cursor-pointer justify-center items-center gap-2.5",
+                "hover:bg-neutral-100 transition-colors"
+              )}
+            >
+              <span className="text-neutral-500 text-sm font-semibold font-['Pretendard'] leading-5">
+                {cancelLabel}
+              </span>
+            </button>
+          )}
 
           <button
-            data-color="red"
+            data-color={tone === "primary" ? "primary" : "red"}
             data-state="default"
             data-type="check"
             onClick={onConfirm}
             className={cn(
-              "px-2 py-1 rounded cursor-pointer flex justify-center items-center",
-              "hover:bg-red-50 transition-colors"
+              "px-2 py-1 rounded cursor-pointer flex justify-center items-center transition-colors",
+              tone === "primary" ? "hover:bg-orange-50" : "hover:bg-red-50"
             )}
           >
-            <span className="text-red-500 text-sm font-semibold font-['Pretendard'] leading-5">
+            <span
+              className={cn(
+                "text-sm font-semibold font-['Pretendard'] leading-5",
+                tone === "primary" ? "text-orange-600" : "text-red-500"
+              )}
+            >
               {confirmLabel}
             </span>
           </button>

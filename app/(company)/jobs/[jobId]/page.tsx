@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import BackButton from "@/components/buttons/BackButton";
 import { JobForm } from "@/components/job/JobForm";
 import { useJobPosting, useUpdateJobPosting } from "@/hooks/company/useJobPosting";
+import { useAlert } from "@/contexts/ConfirmContext";
 import type { JobFormData } from "@/types/job";
 import { S3_BASE_URL } from "@/constants/api";
 
 export default function EditJobPage({ params }: { params: Promise<{ jobId: string }> }) {
   const { jobId } = use(params);
   const router = useRouter();
+  const alert = useAlert();
 
   // 기존 데이터 조회
   const { data: jobData, isLoading } = useJobPosting(jobId);
@@ -47,11 +49,14 @@ export default function EditJobPage({ params }: { params: Promise<{ jobId: strin
   const handleSubmit = async (data: JobFormData) => {
     try {
       await updateMutation.mutateAsync(data);
-      alert("채용 공고가 수정되었습니다.");
+      await alert({ title: "채용 공고가 수정되었습니다." });
       router.push("/jobs");
     } catch (error) {
       console.error("Error updating job:", error);
-      alert("채용 공고 수정에 실패했습니다.");
+      await alert({
+        title: "채용 공고 수정에 실패했습니다.",
+        description: "잠시 후 다시 시도해주세요.",
+      });
     }
   };
 
