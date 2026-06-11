@@ -12,6 +12,10 @@ interface TalentRegisterNavProps extends React.HTMLAttributes<HTMLElement> {
   onSubmit?: () => void;
   formId?: string;
   isSubmitDisabled?: boolean;
+  /** 작성 완료(최종 제출) 진행 중 여부 */
+  isSubmitting?: boolean;
+  /** 임시 저장 진행 중 여부 */
+  isTempSaving?: boolean;
 }
 
 export default function TalentRegisterNav({
@@ -19,6 +23,8 @@ export default function TalentRegisterNav({
   onSubmit,
   formId,
   isSubmitDisabled = false,
+  isSubmitting = false,
+  isTempSaving = false,
   className,
   ...props
 }: TalentRegisterNavProps) {
@@ -28,6 +34,10 @@ export default function TalentRegisterNav({
 
   // Debounce를 위한 ref
   const tempSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 제출 또는 임시 저장이 진행 중이면 두 버튼 모두 비활성화하여 중복 요청 방지
+  const isBusy = isSubmitting || isTempSaving;
+  const isSubmitButtonDisabled = isSubmitDisabled || isBusy;
 
   const handleGoBack = () => {
     router.push("/profile");
@@ -108,24 +118,30 @@ export default function TalentRegisterNav({
           <button
             type="button"
             onClick={handleTempSave}
-            className="px-4 py-2.5 md:py-3 border border-border-accent bg-bg-primary rounded-lg text-base md:text-lg font-bold text-text-accent hover:bg-bg-secondary transition-colors hover:cursor-pointer"
+            disabled={isBusy}
+            className={cn(
+              "px-4 py-2.5 md:py-3 border rounded-lg text-base md:text-lg font-bold transition-colors",
+              isBusy
+                ? "border-border-quaternary bg-bg-tertiary text-text-quaternary cursor-not-allowed"
+                : "border-border-accent bg-bg-primary text-text-accent hover:bg-bg-secondary hover:cursor-pointer"
+            )}
           >
-            임시 저장
+            {isTempSaving ? "저장 중..." : "임시 저장"}
           </button>
         )}
         <button
           type={formId ? "submit" : "button"}
           form={formId}
           onClick={!formId ? onSubmit : undefined}
-          disabled={isSubmitDisabled}
+          disabled={isSubmitButtonDisabled}
           className={cn(
             "px-4 py-2.5 md:py-3 rounded-lg text-base md:text-lg font-bold transition-colors",
-            isSubmitDisabled
+            isSubmitButtonDisabled
               ? "bg-bg-tertiary text-text-quaternary outline-1 outline-border-quaternary -outline-offset-1 cursor-not-allowed"
               : "bg-bg-accent text-text-inverse-primary hover:bg-brand-06 cursor-pointer"
           )}
         >
-          작성 완료
+          {isSubmitting ? "저장 중..." : "작성 완료"}
         </button>
       </div>
     </nav>
