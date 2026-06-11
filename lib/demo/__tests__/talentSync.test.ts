@@ -46,7 +46,7 @@ describe("인재 탐색 ↔ 이력서 동기화", () => {
     const me = res.content.find((t) => t.id === 1);
 
     expect(me).toBeDefined();
-    expect(me?.name).toBe("데모 인재");
+    expect(me?.name).toBe("홍길동");
     expect(me?.jobRoles).toEqual(["프론트엔드"]);
     expect(me?.skills).toEqual(["React", "Next.js", "TypeScript"]);
   });
@@ -60,7 +60,7 @@ describe("인재 탐색 ↔ 이력서 동기화", () => {
     publishResume();
     const detail = getDemoTalent(1);
 
-    expect(detail.name).toBe("데모 인재");
+    expect(detail.name).toBe("홍길동");
     expect(detail.jobRoles).toEqual(["프론트엔드"]);
     expect(detail.educations).toHaveLength(1);
   });

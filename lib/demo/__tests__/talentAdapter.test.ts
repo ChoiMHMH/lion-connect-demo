@@ -59,7 +59,7 @@ describe("talentAdapter", () => {
 
     const item = applyResumeToTalentListItem(baseListItem, snapshot!);
 
-    expect(item.name).toBe("데모 인재");
+    expect(item.name).toBe("홍길동");
     expect(item.jobRoles).toEqual(["프론트엔드"]);
     expect(item.skills).toEqual(["React", "Next.js", "TypeScript"]);
     expect(item.education?.schoolName).toBe("라이언대학교");
@@ -73,7 +73,7 @@ describe("talentAdapter", () => {
     const snapshot = getDemoResumeSnapshot(1)!;
     const detail = applyResumeToTalentDetail(baseDetail, snapshot);
 
-    expect(detail.name).toBe("데모 인재");
+    expect(detail.name).toBe("홍길동");
     expect(detail.jobRoles).toEqual(["프론트엔드"]);
     expect(detail.educations).toHaveLength(1);
     expect(detail.workExperiences).toHaveLength(1);
@@ -84,7 +84,7 @@ describe("talentAdapter", () => {
     updateDemoProfile(1, {
       name: "수정된 이름",
       introduction: "수정된 소개",
-      storageUrl: "/demo-assets/profile-1/portfolio.pdf",
+      storageUrl: "/demo/profile-demo.png",
       visibility: "PUBLIC",
     });
 

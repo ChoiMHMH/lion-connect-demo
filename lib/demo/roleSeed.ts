@@ -7,6 +7,9 @@ import type { TalentDetailResponse } from "@/types/talent";
 import type { TalentListItem } from "@/lib/api/talents";
 
 export const DEMO_ROLE_NOW = "2026-05-12T00:00:00.000Z";
+const DEMO_PROFILE_IMAGE_URL = "/demo/profile-demo.png";
+const DEMO_HONG_PORTFOLIO_URL = "/demo/mock_portfolio_frontend_honggildong.pdf";
+const DEMO_TEST_PORTFOLIO_URL = "/demo/mock_portfolio_frontend_test.pdf";
 
 export const demoPublicJobs: PublicJobPosting[] = [
   {
@@ -288,7 +291,7 @@ export const demoJobDetails: JobDetailResponse[] = [
 export const demoTalentList: TalentListItem[] = [
   {
     id: 1,
-    name: "데모 인재",
+    name: "홍길동",
     introduction: "Next.js와 TypeScript로 실제 서비스형 화면을 안정적으로 구현합니다.",
     email: "talent.demo@lionconnect.test",
     phoneNumber: "010-0000-0001",
@@ -300,7 +303,7 @@ export const demoTalentList: TalentListItem[] = [
     },
     jobRoles: ["프론트엔드"],
     skills: ["React", "Next.js", "TypeScript"],
-    thumbnailUrl: "/images/default-profile.png",
+    thumbnailUrl: DEMO_PROFILE_IMAGE_URL,
     workDrivenLevel: 4,
   },
   {
@@ -342,7 +345,7 @@ export const demoTalentList: TalentListItem[] = [
 export const demoTalentDetails: TalentDetailResponse[] = [
   {
     id: 1,
-    name: "데모 인재",
+    name: "홍길동",
     title: "프론트엔드 포트폴리오 이력서",
     introduction: "Next.js와 TypeScript로 실제 서비스형 화면을 안정적으로 구현합니다.",
     email: "talent.demo@lionconnect.test",
@@ -352,11 +355,11 @@ export const demoTalentDetails: TalentDetailResponse[] = [
     experiences: ["부트캠프 경험자", "창업 경험자"],
     skills: ["React", "Next.js", "TypeScript"],
     languages: ["TOEIC Speaking IH"],
-    thumbnailUrl: "/images/default-profile.png",
-    portfolioUrl: "/demo-assets/profile-1/portfolio.pdf",
+    thumbnailUrl: DEMO_PROFILE_IMAGE_URL,
+    portfolioUrl: DEMO_HONG_PORTFOLIO_URL,
     externalLink: "https://github.com/ChoiMHMH/lion-connect-demo",
     externalLinks: ["https://github.com/ChoiMHMH/lion-connect-demo"],
-    storageUrl: "/demo-assets/profile-1/portfolio.pdf",
+    storageUrl: DEMO_HONG_PORTFOLIO_URL,
     likelionCertified: true,
     updatedAt: DEMO_ROLE_NOW,
     workExperiences: [
@@ -433,10 +436,10 @@ export const demoTalentDetails: TalentDetailResponse[] = [
     skills: ["Java", "Spring", "MySQL"],
     languages: ["TOEIC 900"],
     thumbnailUrl: "/images/default-profile.png",
-    portfolioUrl: "/demo-assets/profile-1/portfolio.pdf",
+    portfolioUrl: DEMO_TEST_PORTFOLIO_URL,
     externalLink: "https://github.com/ChoiMHMH/lion-connect-demo",
     externalLinks: ["https://github.com/ChoiMHMH/lion-connect-demo"],
-    storageUrl: "/demo-assets/profile-1/portfolio.pdf",
+    storageUrl: DEMO_TEST_PORTFOLIO_URL,
     likelionCertified: true,
     updatedAt: DEMO_ROLE_NOW,
     workExperiences: [
@@ -503,10 +506,10 @@ export const demoTalentDetails: TalentDetailResponse[] = [
     skills: ["Figma", "Prototyping", "Design System"],
     languages: ["OPIc IM2"],
     thumbnailUrl: "/images/default-profile.png",
-    portfolioUrl: "/demo-assets/profile-1/portfolio.pdf",
+    portfolioUrl: DEMO_TEST_PORTFOLIO_URL,
     externalLink: "https://github.com/ChoiMHMH/lion-connect-demo",
     externalLinks: ["https://github.com/ChoiMHMH/lion-connect-demo"],
-    storageUrl: "/demo-assets/profile-1/portfolio.pdf",
+    storageUrl: DEMO_TEST_PORTFOLIO_URL,
     likelionCertified: true,
     updatedAt: DEMO_ROLE_NOW,
     workExperiences: [
@@ -588,7 +591,7 @@ export type DemoApplicant = CompanyApplicant & { jobPostingId: number };
 export const demoApplicants: DemoApplicant[] = [
   {
     jobPostingId: 9001,
-    applicantName: "데모 인재",
+    applicantName: "홍길동",
     jobGroupName: "개발",
     jobRoleName: "프론트엔드",
     appliedAt: DEMO_ROLE_NOW,
@@ -601,7 +604,7 @@ export const demoApplicants: DemoApplicant[] = [
 export const demoAdminUsers: AdminUsersResponse["content"] = [
   {
     id: 1001,
-    name: "데모 인재",
+    name: "홍길동",
     phoneNumber: "010-0000-0001",
     email: "talent.demo@lionconnect.test",
     joinedAt: DEMO_ROLE_NOW,
@@ -638,8 +641,8 @@ export const demoInquiries: InquiryListResponse["content"] = [
   {
     id: 7001,
     profileId: 1,
-    profileName: "데모 인재",
-    profileStorageUrl: "/demo-assets/profile-1/portfolio.pdf",
+    profileName: "홍길동",
+    profileStorageUrl: DEMO_HONG_PORTFOLIO_URL,
     companyName: "데모파트너스",
     contactPerson: "채용 담당자",
     department: "인재영입팀",

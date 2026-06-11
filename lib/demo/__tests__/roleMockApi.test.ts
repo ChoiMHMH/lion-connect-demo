@@ -211,14 +211,17 @@ describe("demo role page mock API", () => {
     expect(talents.body.content[0]).toEqual(
       expect.objectContaining({
         id: 1,
-        name: "데모 인재",
+        name: "홍길동",
+        thumbnailUrl: "/demo/profile-demo.png",
         jobRoles: ["프론트엔드"],
       })
     );
     expect(talentDetail.body).toEqual(
       expect.objectContaining({
         id: 1,
-        name: "데모 인재",
+        name: "홍길동",
+        thumbnailUrl: "/demo/profile-demo.png",
+        portfolioUrl: "/demo/mock_portfolio_frontend_honggildong.pdf",
         workDrivenLevel: 4,
       })
     );
@@ -231,14 +234,14 @@ describe("demo role page mock API", () => {
     expect(companyJobDetail.body).toEqual(expect.objectContaining({ jobPostingId: 9001 }));
     expect(applicants.body.content[0]).toEqual(
       expect.objectContaining({
-        applicantName: "데모 인재",
+        applicantName: "홍길동",
         talentProfileId: 1,
       })
     );
   });
 
   it("지원자 현황은 공고별로 분리되며 지원/취소가 반영된다", async () => {
-    // 시드 공고 9001은 데모 인재 1명, 9002는 0명으로 시작
+    // 시드 공고 9001은 홍길동 인재 1명, 9002는 0명으로 시작
     const applicants9001 = await callDemoApi(
       "GET",
       "/company/job-postings/9001/applications?page=0&size=10"
@@ -483,7 +486,7 @@ describe("demo role page mock API", () => {
     const devGroup = await callDemoApi("GET", "/profiles/search?jobGroupId=1&page=0&size=20");
     const roleAndKeyword = await callDemoApi(
       "GET",
-      "/profiles/search?jobRoleId=1&keyword=데모&page=0&size=20"
+      "/profiles/search?jobRoleId=1&keyword=홍길동&page=0&size=20"
     );
     const noMatch = await callDemoApi("GET", "/profiles/search?jobRoleId=6&page=0&size=20");
 
