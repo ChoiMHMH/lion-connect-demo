@@ -2,7 +2,7 @@
 
 /** 직군별 직무 목록 (UI 셀렉트용) */
 export const JOB_OPTIONS: Record<string, string[]> = {
-  개발: ["프론트앤드", "백앤드", "IOS", "Android", "Unity", "AI"],
+  개발: ["프론트엔드", "백엔드", "IOS", "Android", "Unity", "AI"],
   디자인: ["UX/UI"],
   "데이터 분석": ["데이터 분석"],
   마케팅: ["그로스 마케팅"],
@@ -13,8 +13,8 @@ export const JOB_KEYS = Object.keys(JOB_OPTIONS);
 
 /** 직무명 → 역할 ID 매핑 (관리자 API 예시 JSON 기준) */
 export const JOB_ROLE_ID_BY_NAME: Record<string, number> = {
-  프론트앤드: 1,
-  백앤드: 2,
+  프론트엔드: 1,
+  백엔드: 2,
   IOS: 3,
   Android: 4,
   Unity: 5,
