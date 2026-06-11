@@ -88,8 +88,8 @@ export function useCreateJobPosting() {
     onSuccess: (newJob) => {
       // 생성 후 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
-      // 인재 랜딩(공개 공고 목록)도 즉시 반영되도록 무효화
-      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      // 인재 랜딩 재진입 시 옛 목록이 깜빡이지 않도록 공개 목록 캐시는 제거한다(다시 진입 시 새로 조회).
+      queryClient.removeQueries({ queryKey: ["publicJobPostings"] });
       // 생성된 데이터를 캐시에 저장
       queryClient.setQueryData(["jobPosting", newJob.jobPostingId], newJob);
     },
@@ -108,8 +108,9 @@ export function useUpdateJobPosting(jobId: string) {
       // 수정 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
-      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
-      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      // 인재 랜딩 재진입 시 옛 목록이 깜빡이지 않도록 공개 목록 캐시는 제거하고(다시 진입 시 새로 조회),
+      // 공개 상세는 무효화한다.
+      queryClient.removeQueries({ queryKey: ["publicJobPostings"] });
       queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId] });
       // 업데이트된 데이터를 캐시에 저장
       queryClient.setQueryData(["jobPosting", updatedJob.jobPostingId], updatedJob);
@@ -129,8 +130,9 @@ export function useDeleteJobPosting(jobId: string) {
       // 삭제 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
-      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
-      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      // 인재 랜딩 재진입 시 옛 목록이 깜빡이지 않도록 공개 목록 캐시는 제거하고(다시 진입 시 새로 조회),
+      // 공개 상세는 무효화한다.
+      queryClient.removeQueries({ queryKey: ["publicJobPostings"] });
       queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId] });
       // 캐시에서 삭제
       queryClient.removeQueries({ queryKey: ["jobPosting", jobId] });
@@ -151,8 +153,9 @@ export function usePublishJobPosting(jobId: number) {
       // 게시 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId.toString()] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
-      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
-      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      // 인재 랜딩 재진입 시 옛 목록이 깜빡이지 않도록 공개 목록 캐시는 제거하고(다시 진입 시 새로 조회),
+      // 공개 상세는 무효화한다.
+      queryClient.removeQueries({ queryKey: ["publicJobPostings"] });
       queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId.toString()] });
     },
   });
@@ -170,8 +173,9 @@ export function useUnpublishJobPosting(jobId: number) {
       // 게시 취소 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId.toString()] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
-      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
-      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      // 인재 랜딩 재진입 시 옛 목록이 깜빡이지 않도록 공개 목록 캐시는 제거하고(다시 진입 시 새로 조회),
+      // 공개 상세는 무효화한다.
+      queryClient.removeQueries({ queryKey: ["publicJobPostings"] });
       queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId.toString()] });
     },
   });
