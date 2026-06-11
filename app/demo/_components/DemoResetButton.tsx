@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { clearDemoAuthState } from "@/lib/demoAuthClient";
+import { resetAllDemoData } from "@/lib/demo/reset";
 
-const DEMO_LOCAL_STORAGE_KEYS = [
-  "auth-store",
-  "lion-connect-demo-api-log",
-  "lion-connect-demo-resume-store",
-];
+const DEMO_LOCAL_STORAGE_KEYS = ["auth-store", "lion-connect-demo-api-log"];
 
 const DEMO_SESSION_STORAGE_KEYS = ["lion-connect-demo-guide-seen"];
 
@@ -19,6 +16,8 @@ export default function DemoResetButton() {
 
     try {
       await clearDemoAuthState();
+      // 이력서/역할 스토어(demo: JSON) + 업로드 바이너리(IndexedDB) 초기화 + 인메모리 재시드.
+      await resetAllDemoData();
       DEMO_LOCAL_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key));
       DEMO_SESSION_STORAGE_KEYS.forEach((key) => window.sessionStorage.removeItem(key));
       setStatus("done");
@@ -39,10 +38,10 @@ export default function DemoResetButton() {
       </button>
       <p className="text-xs leading-5 text-neutral-500" aria-live="polite">
         {status === "done"
-          ? "브라우저에 남은 데모 인증과 로컬 데모 데이터를 정리했습니다."
+          ? "데모 인증과 이력서·업로드 파일을 모두 초기 상태로 되돌렸습니다."
           : status === "error"
             ? "초기화에 실패했습니다. 새로고침 후 다시 시도해주세요."
-            : "브라우저 localStorage/sessionStorage와 데모 인증 쿠키만 정리합니다."}
+            : "데모 인증, 이력서/역할 데이터, 업로드 파일을 모두 처음 상태로 되돌립니다."}
       </p>
     </div>
   );
