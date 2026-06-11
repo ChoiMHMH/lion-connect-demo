@@ -40,4 +40,17 @@ describe("IntroduceCard", () => {
     expect(profileImage).toHaveAttribute("src", "/api/demo/uploads/demo/profile-1/profile.png");
     expect(within(cardLink).getByText("상세 보기")).toBeVisible();
   });
+
+  it("이름 최대 글자수 prop으로 truncate 폭을 제어한다", () => {
+    const { rerender } = render(<IntroduceCard name="데모 백엔드 인재" />);
+
+    // 기본값(상세): 9ch
+    expect(screen.getByRole("heading", { level: 2 })).toHaveStyle({ maxWidth: "9ch" });
+
+    // 목록: 5ch
+    rerender(<IntroduceCard name="데모 백엔드 인재" nameMaxChars={5} />);
+    const heading = screen.getByRole("heading", { level: 2 });
+    expect(heading).toHaveStyle({ maxWidth: "5ch" });
+    expect(heading).toHaveClass("truncate");
+  });
 });
