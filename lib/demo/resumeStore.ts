@@ -165,6 +165,42 @@ export function resetDemoResumeStore() {
   uploadedFiles.clear();
 }
 
+/**
+ * 이력서 프로필과 모든 섹션을 한 번에 읽는 읽기 전용 스냅샷.
+ * 인재 탐색(roleStore)에서 이력서를 talent로 합성할 때 단방향으로 사용한다.
+ * (resumeStore는 roleStore를 import 하지 않아 순환 의존을 만들지 않는다.)
+ */
+export type DemoResumeSnapshot = {
+  profile: DemoProfileRecord;
+  educations: EducationResponse[];
+  experiences: ExperienceResponse[];
+  languages: LanguageResponse[];
+  certifications: CertificationResponse[];
+  awards: AwardResponse[];
+  customSkills: CustomSkillResponse[];
+  jobCategories: JobCategoryResponse[];
+  profileLinks: ProfileLinkResponse[];
+  workDrivenResult: WorkDrivenTestResultResponse | null;
+};
+
+export function getDemoResumeSnapshot(profileId: number): DemoResumeSnapshot | null {
+  const profile = getProfile(profileId);
+  if (!profile) return null;
+
+  return clone({
+    profile,
+    educations: getList(store.educations, profileId),
+    experiences: getList(store.experiences, profileId),
+    languages: getList(store.languages, profileId),
+    certifications: getList(store.certifications, profileId),
+    awards: getList(store.awards, profileId),
+    customSkills: getList(store.customSkills, profileId),
+    jobCategories: getList(store.jobCategories, profileId),
+    profileLinks: getList(store.profileLinks, profileId),
+    workDrivenResult: store.workDrivenResults[profileId] ?? null,
+  });
+}
+
 export function listDemoProfiles() {
   return clone(
     store.profiles.map((profile) => ({

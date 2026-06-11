@@ -196,6 +196,7 @@ function TalentsPageContent() {
                   key={`${t.talentId}-${index}`}
                   talentId={t.talentId}
                   name={t.name}
+                  nameMaxChars={5}
                   viewCount={t.viewCount}
                   badges={t.badges}
                   tendencies={t.tendencies}
