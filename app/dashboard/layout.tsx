@@ -17,7 +17,9 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialDemoRole = await getInitialDemoRole(DEFAULT_TALENT_DEMO_ROLE);
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_TALENT_DEMO_ROLE, {
+    preferFallbackInDemoOnly: true,
+  });
 
   return (
     <>

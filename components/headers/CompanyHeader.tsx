@@ -31,7 +31,7 @@ export default function CompanyHeader({
   const [mounted, setMounted] = useState(false);
   const { logout } = useLogout();
   const storeDemoRole = getDemoRoleByUser(user);
-  const demoRole = storeDemoRole ?? initialDemoRole;
+  const demoRole = initialDemoRole ?? storeDemoRole;
 
   useEffect(() => {
     setMounted(true);

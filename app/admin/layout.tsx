@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const initialDemoRole = await getInitialDemoRole(DEFAULT_ADMIN_DEMO_ROLE);
+  const initialDemoRole = await getInitialDemoRole(DEFAULT_ADMIN_DEMO_ROLE, {
+    preferFallbackInDemoOnly: true,
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
