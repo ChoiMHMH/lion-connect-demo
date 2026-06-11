@@ -12,9 +12,12 @@ import {
   API_ERROR_MESSAGES,
   HTTP_STATUS,
   API_ENDPOINTS,
+  DEMO_API_BASE_PATH,
   resolveApiRequestUrl,
 } from "@/constants/api";
 import { isDemoAuthState } from "@/lib/demoMode";
+import { isBrowser } from "@/lib/demo/persistence";
+import { handleDemoApiRequest } from "@/lib/demo/mockApi";
 import { recordDemoApiLog } from "@/store/demoApiLogStore";
 import { useAuthStore } from "@/store/authStore";
 
@@ -40,6 +43,35 @@ type RequestOptions = RequestInit & {
 
 // 리프레시 토큰 요청 중복 방지를 위한 Promise 캐싱
 let refreshPromise: Promise<string> | null = null;
+
+/**
+ * 데모 모드 요청을 브라우저에서 직접 디스패치한다.
+ * - 서버리스 인스턴스 의존을 제거하고 localStorage 단일 소스로 일관성을 보장한다(#2/#4).
+ * - 업로드 바이너리(/api/demo/uploads/*)는 서버 라우트로 폴스루한다(T7에서 SW로 전환).
+ */
+function shouldDispatchDemoLocally(isDemoRequest: boolean, url: string): boolean {
+  return isDemoRequest && isBrowser() && !url.startsWith(`${DEMO_API_BASE_PATH}/uploads`);
+}
+
+async function dispatchDemoLocally(
+  url: string,
+  options: RequestOptions,
+  headers: Record<string, string>
+): Promise<Response> {
+  const absolute = new URL(url, "http://demo.local");
+  const segments = absolute.pathname
+    .replace(/^\/api\/demo\/?/, "")
+    .split("/")
+    .filter(Boolean);
+
+  const request = new Request(absolute.toString(), {
+    method: options.method ?? "GET",
+    headers,
+    body: options.body as BodyInit | null | undefined,
+  });
+
+  return handleDemoApiRequest(request, segments);
+}
 
 /**
  * 타임아웃 기능이 있는 fetch 래퍼
@@ -237,12 +269,14 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
   }
 
   try {
-    // 요청 전송
-    const response = await fetchWithTimeout(url, {
-      ...options,
-      headers,
-      credentials: options.skipCredentials ? "omit" : "include", // 조건부 credentials
-    });
+    // 요청 전송 (데모는 브라우저에서 로컬 디스패치, 그 외/업로드는 네트워크)
+    const response = shouldDispatchDemoLocally(isDemoRequest, url)
+      ? await dispatchDemoLocally(url, options, headers)
+      : await fetchWithTimeout(url, {
+          ...options,
+          headers,
+          credentials: options.skipCredentials ? "omit" : "include", // 조건부 credentials
+        });
 
     if (isDemoRequest) {
       recordDemoApiLog({

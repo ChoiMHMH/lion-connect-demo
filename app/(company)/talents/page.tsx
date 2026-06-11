@@ -7,7 +7,7 @@ import Pager from "@/components/Pager";
 import TalentSearchHeader from "./_components/TalentSearchHeader";
 import EmptyTalentState from "./_components/EmptyTalentState";
 import IntroduceCard from "./[talentId]/_components/IntroduceCard";
-import IntroduceCardSkeleton from "./_components/IntroduceCardSkeleton";
+import TalentsLoadingState from "./_components/TalentsLoadingState";
 import { useTalents } from "@/hooks/company/useTalents";
 import type { BadgeType } from "@/components/ui/badge";
 import { JOB_ROLE_ID_BY_NAME, findJobGroupByJobName } from "@/constants/jobs";
@@ -95,20 +95,7 @@ function TalentsPageContent() {
 
   // 로딩 중이거나 데이터가 아직 없는 경우 스켈레톤 표시
   if (isLoading || !data) {
-    return (
-      <main className="w-full text-black mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <section className="mb-8 space-y-4">
-            <TalentSearchHeader totalCount={0} />
-            <div className="mt-6 flex flex-col gap-12">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <IntroduceCardSkeleton key={index} />
-              ))}
-            </div>
-          </section>
-        </div>
-      </main>
-    );
+    return <TalentsLoadingState />;
   }
 
   // 에러 상태 처리
@@ -239,7 +226,7 @@ function TalentsPageContent() {
  */
 export default function TalentsPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<TalentsLoadingState />}>
       <TalentsPageContent />
     </Suspense>
   );

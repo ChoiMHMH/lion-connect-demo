@@ -9,10 +9,23 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+
+// 데모 모드 판정을 테스트별로 제어한다.
+// 기본은 비데모(false)라서 fetch 전송/응답 처리 경로를 그대로 검증할 수 있고,
+// 데모 전용 테스트에서만 true로 바꿔 브라우저 로컬 디스패치(#2/#4) 동작을 검증한다.
+vi.mock("@/lib/demoMode", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/demoMode")>();
+  return { ...actual, isDemoAuthState: vi.fn(() => false) };
+});
+
 import { get, ApiError } from "@/lib/apiClient";
+import { isDemoAuthState } from "@/lib/demoMode";
 import { DEMO_AUTH_PROFILES } from "@/constants/demoAuth";
 import { useDemoApiLogStore } from "@/store/demoApiLogStore";
 import { useAuthStore } from "@/store/authStore";
+import { resetDemoResumeStore } from "@/lib/demo/resumeStore";
+
+const mockedIsDemo = vi.mocked(isDemoAuthState);
 
 function jsonResponse(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -35,6 +48,9 @@ function emptyOkResponse(): Response {
 
 describe("apiClient — 기본 동작", () => {
   beforeEach(() => {
+    mockedIsDemo.mockReturnValue(false);
+    localStorage.clear();
+    resetDemoResumeStore();
     useAuthStore.setState({ accessToken: "access-token", user: null });
     useDemoApiLogStore.getState().clearEntries();
   });
@@ -42,6 +58,7 @@ describe("apiClient — 기본 동작", () => {
   afterEach(() => {
     useAuthStore.setState({ accessToken: null, user: null });
     useDemoApiLogStore.getState().clearEntries();
+    vi.restoreAllMocks();
   });
 
   it("200 JSON 응답을 그대로 반환한다", async () => {
@@ -103,26 +120,30 @@ describe("apiClient — 기본 동작", () => {
     expect(headers.Authorization).toBe("Bearer access-token");
   });
 
-  it("demo auth state에서는 상대 endpoint를 /api/demo으로 보내고 로그를 기록한다", async () => {
+  it("demo 상대 endpoint는 네트워크 없이 로컬 디스패치되고 로그를 기록한다", async () => {
+    mockedIsDemo.mockReturnValue(true);
     useAuthStore.setState({
       accessToken: DEMO_AUTH_PROFILES.demo_talent.accessToken,
       user: DEMO_AUTH_PROFILES.demo_talent.user,
     });
-    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(jsonResponse({ ok: true }));
+    const fetchMock = vi.spyOn(global, "fetch");
 
-    await get("/profile/me");
+    const result = await get<{ name: string }>("/profile/me?profileId=1");
 
-    expect(fetchMock.mock.calls[0][0]).toBe("/api/demo/profile/me");
+    // 데모 스토어(시드)에서 직접 응답 → fetch 미호출
+    expect(result.name).toBe("홍길동");
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(useDemoApiLogStore.getState().entries).toMatchObject([
       {
         method: "GET",
-        path: "/api/demo/profile/me",
+        path: "/api/demo/profile/me?profileId=1",
         status: 200,
       },
     ]);
   });
 
-  it("demo auth state에서도 절대 URL은 /api/demo으로 바꾸지 않는다", async () => {
+  it("demo auth state에서도 절대 URL은 /api/demo으로 바꾸지 않고 네트워크로 보낸다", async () => {
+    mockedIsDemo.mockReturnValue(true);
     useAuthStore.setState({
       accessToken: DEMO_AUTH_PROFILES.demo_talent.accessToken,
       user: DEMO_AUTH_PROFILES.demo_talent.user,

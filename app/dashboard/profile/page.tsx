@@ -51,6 +51,8 @@ function ProfilePage() {
     onSuccess: () => {
       showToast("공개 설정이 변경되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["profile", "list", userId] });
+      // #3: 인재탐색 목록도 즉시 갱신되도록 무효화 (이전 공개 상태가 잠깐 보이는 문제 방지)
+      queryClient.invalidateQueries({ queryKey: ["talents"] });
     },
     onError: () => {
       showToast("공개 설정 변경에 실패했습니다.", "error");
