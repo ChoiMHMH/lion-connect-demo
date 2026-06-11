@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { TalentRegisterFormValues } from "@/schemas/talent/talentRegisterSchema";
 import AddButton from "../AddButton";
 import { useTalentRegisterStore } from "@/store/talentRegisterStore";
+import { isClientServedImage } from "@/utils/imageSrc";
 
 export default function ProfileImageSection() {
   const {
@@ -116,6 +117,7 @@ export default function ProfileImageSection() {
             fill
             className="object-cover"
             sizes="(max-width: 768px) 128px, 160px"
+            unoptimized={isClientServedImage(previewUrl)}
           />
         </button>
 

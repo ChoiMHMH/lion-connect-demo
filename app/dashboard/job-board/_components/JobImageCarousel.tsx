@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { isClientServedImage } from "@/utils/imageSrc";
 
 interface JobImageCarouselProps {
   images: string[];
@@ -53,6 +54,7 @@ export default function JobImageCarousel({ images }: JobImageCarouselProps) {
               aria-hidden="true"
               className="object-cover scale-110 blur-xl opacity-45"
               sizes="570px"
+              unoptimized={isClientServedImage(image)}
             />
             <Image
               src={image}
@@ -60,6 +62,7 @@ export default function JobImageCarousel({ images }: JobImageCarouselProps) {
               fill
               className="object-contain relative z-10"
               sizes="570px"
+              unoptimized={isClientServedImage(image)}
             />
           </div>
         ))}

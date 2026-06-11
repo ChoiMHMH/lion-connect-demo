@@ -4,6 +4,7 @@ import Image from "next/image";
 import Badge from "@/components/ui/badge";
 import type { BadgeType } from "@/components/ui/badge";
 import SkillChips from "@/components/chips/SkillChips";
+import { isClientServedImage } from "@/utils/imageSrc";
 
 type BadgeItem = { label: string; type: BadgeType };
 
@@ -122,7 +123,14 @@ export default function IntroduceCard(props: IntroduceCardProps) {
         {/* 왼쪽: 프로필 */}
         <div className="w-40 inline-flex flex-col justify-start items-start gap-8">
           <div className="w-40 h-48 relative rounded-lg overflow-hidden bg-[#F5F5F5] border border-border-quaternary">
-            <Image src={src} alt={`${name} 프로필 이미지`} fill className="object-cover" priority />
+            <Image
+              src={src}
+              alt={`${name} 프로필 이미지`}
+              fill
+              className="object-cover"
+              priority
+              unoptimized={isClientServedImage(src)}
+            />
           </div>
           {/* 리스팅 페이지에서만 상세보기 버튼 표시 */}
           {showDetailButton && href && (

@@ -4,20 +4,25 @@ import { useRouter } from "next/navigation";
 import BackButton from "@/components/buttons/BackButton";
 import { JobForm } from "@/components/job/JobForm";
 import { useCreateJobPosting } from "@/hooks/company/useJobPosting";
+import { useAlert } from "@/contexts/ConfirmContext";
 import type { JobFormData } from "@/types/job";
 
 export default function NewJobPage() {
   const router = useRouter();
   const createMutation = useCreateJobPosting();
+  const alert = useAlert();
 
   const handleSubmit = async (data: JobFormData) => {
     try {
       await createMutation.mutateAsync(data);
-      alert("채용 공고가 등록되었습니다.");
+      await alert({ title: "채용 공고가 등록되었습니다." });
       router.push(`/jobs`);
     } catch (error) {
       console.error("Error creating job:", error);
-      alert("채용 공고 등록에 실패했습니다.");
+      await alert({
+        title: "채용 공고 등록에 실패했습니다.",
+        description: "잠시 후 다시 시도해주세요.",
+      });
     }
   };
 

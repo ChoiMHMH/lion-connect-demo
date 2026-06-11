@@ -7,6 +7,7 @@ import SuccessToast from "@/components/SuccessToast";
 import { ConfirmProvider } from "@/contexts/ConfirmContext";
 import { DemoGuideProvider } from "@/contexts/DemoGuideContext";
 import DemoApiLogPanel from "@/components/demo/DemoApiLogPanel";
+import DemoServiceWorkerRegistrar from "@/components/demo/DemoServiceWorkerRegistrar";
 import { ReactNode } from "react";
 
 /**
@@ -42,6 +43,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <InitializeApp />
+      <DemoServiceWorkerRegistrar />
       <SuccessToast />
       <ConfirmProvider>
         <DemoGuideProvider>{children}</DemoGuideProvider>
