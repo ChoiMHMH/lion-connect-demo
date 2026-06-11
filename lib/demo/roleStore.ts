@@ -4,7 +4,12 @@ import {
   type DemoApplicant,
   type DemoRoleSeed,
 } from "@/lib/demo/roleSeed";
-import { findJobRoleById } from "@/constants/jobMapping";
+import {
+  findJobGroupByCode,
+  findJobGroupById,
+  findJobRoleByCode,
+  findJobRoleById,
+} from "@/constants/jobMapping";
 import type {
   AdminCompaniesResponse,
   AdminUsersResponse,
@@ -220,10 +225,26 @@ function toPublicJobPostingResponse(
   return paged(items, page, size);
 }
 
+// 공개 공고는 jobGroupCode/jobRoleCode(코드)로 들어온다. 데모 데이터는 직군/직무를
+// 이름으로만 보관하므로 jobMapping으로 코드를 이름으로 바꿔 비교한다.
+function filterPublicJobsByQuery(jobs: PublicJobPosting[], searchParams: URLSearchParams) {
+  const groupCode = searchParams.get("jobGroupCode")?.trim();
+  const roleCode = searchParams.get("jobRoleCode")?.trim();
+  const groupName = groupCode ? findJobGroupByCode(groupCode)?.name : undefined;
+  const roleName = roleCode ? findJobRoleByCode(roleCode)?.role.name : undefined;
+
+  return jobs.filter((job) => {
+    if (groupName && job.jobGroupName !== groupName) return false;
+    if (roleName && job.jobRoleName !== roleName) return false;
+    return true;
+  });
+}
+
 export function listDemoPublicJobPostings(searchParams: URLSearchParams) {
   // 인재 랜딩에는 게시중(PUBLISHED) 공고만 노출한다.
   const publishedJobs = store.jobs.filter((job) => getJobStatus(job.jobPostingId) === "PUBLISHED");
-  return toPublicJobPostingResponse(searchParams, publishedJobs);
+  const filteredJobs = filterPublicJobsByQuery(publishedJobs, searchParams);
+  return toPublicJobPostingResponse(searchParams, filteredJobs);
 }
 
 export function listDemoAdminJobPostings(searchParams: URLSearchParams) {
@@ -492,16 +513,49 @@ export function cancelDemoApplication(jobApplicationId: number) {
   });
 }
 
+// 직무/직군 이름 비교용 정규화 (공백 제거 + 소문자). 시드 표기 흔들림에 덜 취약.
+function normalizeRoleName(name: string) {
+  return name.replace(/\s+/g, "").toLowerCase();
+}
+
+// 인재 검색은 jobGroupId/jobRoleId(숫자)로 들어오지만 데모 인재는 직무를 이름 배열로만
+// 보관한다. jobMapping으로 허용 직무 이름 집합을 만들어 비교한다.
+// 반환: null = 직무 필터 없음, 빈 Set = 매핑 실패(매칭 0건).
+function resolveTalentRoleNames(
+  jobGroupId: string | null,
+  jobRoleId: string | null
+): Set<string> | null {
+  if (jobRoleId) {
+    const found = findJobRoleById(Number(jobRoleId));
+    return new Set(found ? [normalizeRoleName(found.role.name)] : []);
+  }
+  if (jobGroupId) {
+    const group = findJobGroupById(Number(jobGroupId));
+    return new Set(group ? group.roles.map((role) => normalizeRoleName(role.name)) : []);
+  }
+  return null;
+}
+
 export function listDemoTalents(searchParams: URLSearchParams): TalentListResponse {
   const keyword = searchParams.get("keyword")?.trim().toLowerCase();
-  const filtered = keyword
-    ? store.talents.filter((talent) =>
-        [talent.name, talent.introduction, ...talent.skills, ...talent.jobRoles]
-          .join(" ")
-          .toLowerCase()
-          .includes(keyword)
-      )
-    : store.talents;
+  const roleNames = resolveTalentRoleNames(
+    searchParams.get("jobGroupId"),
+    searchParams.get("jobRoleId")
+  );
+
+  const filtered = store.talents.filter((talent) => {
+    if (keyword) {
+      const haystack = [talent.name, talent.introduction, ...talent.skills, ...talent.jobRoles]
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(keyword)) return false;
+    }
+    if (roleNames && !talent.jobRoles.some((role) => roleNames.has(normalizeRoleName(role)))) {
+      return false;
+    }
+    return true;
+  });
+
   const { page, size } = pageParams(searchParams, 20);
   return paged<TalentListItem>(filtered, page, size);
 }

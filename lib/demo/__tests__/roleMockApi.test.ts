@@ -456,6 +456,51 @@ describe("demo role page mock API", () => {
     );
   });
 
+  it("공개 공고는 직군/직무 코드로 필터링된다", async () => {
+    const frontend = await callDemoApi(
+      "GET",
+      "/job-postings?jobGroupCode=development&jobRoleCode=frontend&page=0&size=12"
+    );
+    const dev = await callDemoApi("GET", "/job-postings?jobGroupCode=development&page=0&size=12");
+    const design = await callDemoApi("GET", "/job-postings?jobGroupCode=design&page=0&size=12");
+    const dataGroup = await callDemoApi("GET", "/job-postings?jobGroupCode=data&page=0&size=12");
+
+    const jobIds = (res: { body: { content: { jobPostingId: number }[] } }) =>
+      res.body.content.map((job) => job.jobPostingId).sort((a, b) => a - b);
+
+    // 게시중 공고 중 개발/프론트엔드만
+    expect(jobIds(frontend)).toEqual([9001, 9002]);
+    // 직군만 지정하면 해당 직군의 게시중 공고 전체
+    expect(jobIds(dev)).toEqual([9001, 9002, 9004]);
+    expect(jobIds(design)).toEqual([9005]);
+    // 매칭되는 게시중 공고가 없으면 빈 목록
+    expect(dataGroup.body.totalElements).toBe(0);
+  });
+
+  it("인재 검색은 직군/직무 id와 keyword로 필터링된다", async () => {
+    const byRole = await callDemoApi("GET", "/profiles/search?jobRoleId=2&page=0&size=20");
+    const byGroup = await callDemoApi("GET", "/profiles/search?jobGroupId=2&page=0&size=20");
+    const devGroup = await callDemoApi("GET", "/profiles/search?jobGroupId=1&page=0&size=20");
+    const roleAndKeyword = await callDemoApi(
+      "GET",
+      "/profiles/search?jobRoleId=1&keyword=데모&page=0&size=20"
+    );
+    const noMatch = await callDemoApi("GET", "/profiles/search?jobRoleId=6&page=0&size=20");
+
+    const talentIds = (res: { body: { content: { id: number }[] } }) =>
+      res.body.content.map((talent) => talent.id).sort((a, b) => a - b);
+
+    expect(talentIds(byRole)).toEqual([2]);
+    // 직군(디자인)만 지정하면 그 직군의 직무를 가진 인재
+    expect(talentIds(byGroup)).toEqual([3]);
+    // 개발 직군은 프론트엔드/백엔드 인재 모두 포함
+    expect(talentIds(devGroup)).toEqual([1, 2]);
+    // 직무 + keyword AND 결합
+    expect(talentIds(roleAndKeyword)).toEqual([1]);
+    // 매칭되는 인재가 없으면 빈 목록
+    expect(noMatch.body.totalElements).toBe(0);
+  });
+
   it("관리자 문의 상태 변경을 mock하고 목록에 반영한다", async () => {
     const updated = await callDemoApi("PATCH", "/admin/inquiries/7001/status", {
       status: "DONE",
