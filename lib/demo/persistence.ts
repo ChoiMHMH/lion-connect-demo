@@ -53,9 +53,15 @@ export function removeDemoJson(key: string): void {
  * Blob 저장 (IndexedDB / in-memory 폴백)
  * ================================ */
 
-const DB_NAME = "demo-uploads";
-const DB_VERSION = 1;
-const STORE_NAME = "blobs";
+/**
+ * IndexedDB 스키마 상수.
+ * `public/demo-sw.js`(Service Worker)도 동일한 DB명/버전/스토어명을 사용해야 한다.
+ * (SW가 쓴 blob을 여기 `clearDemoBlobs()`가 같은 스토어에서 비울 수 있도록 일치 유지.)
+ * 일관성은 `__tests__/uploadSchemaSync.test.ts`가 고정한다.
+ */
+export const DB_NAME = "demo-uploads";
+export const DB_VERSION = 1;
+export const STORE_NAME = "blobs";
 
 /** IndexedDB 미가용 환경(SSR/jsdom 등)에서 사용하는 폴백. */
 let memoryBlobs: Map<string, Blob> | null = null;
