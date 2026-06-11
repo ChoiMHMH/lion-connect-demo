@@ -2,67 +2,9 @@
 
 > 멋쟁이사자처럼 수료생과 중소기업을 연결하는 채용 플랫폼 MVP (실제 수료생 데이터는 개인정보 보호를 위해 목데이터로 바꾼 스크린샷으로 대체했습니다.)
 
-## 포트폴리오 데모 모드
+## Lion Connect 데모 모드
 
-이 저장소는 운영 서버가 종료된 LionConnect MVP를 포트폴리오 검토용으로 보존한 아카이브입니다. `feat-19-portfolio-demo-mode` 브랜치에서는 실제 로그인, 회원가입, 운영 API 서버, 외부 DB 저장 없이 Next.js Route Handler 기반 Mock API로 핵심 화면 흐름을 확인할 수 있습니다.
-
-### 실행
-
-```bash
-cp .env.example .env.local
-npm install
-npm run dev
-```
-
-- 로컬 기본 주소: `http://localhost:3000`
-- 데모 허브: `http://localhost:3000/demo`
-- 이력서 저장 플로우: `/demo/enter/talent?returnTo=/dashboard/profile/1`
-- 기업 데모: `/demo/enter/company`
-- 관리자 데모: `/demo/enter/admin`
-- 기술 노트: `/demo/dev-notes`
-
-`.env.example`은 공개 저장소에 남겨도 되는 데모 값만 포함합니다. 실제 운영 서버 주소, 실제 토큰, 비공개 키, 개인 식별 정보는 추가하지 않습니다. 개발 서버 포트를 바꾸는 경우 `NEXT_PUBLIC_BASE_URL`과 `NEXT_PUBLIC_API_BASE_URL`의 포트도 함께 맞춥니다.
-
-### 데모에서 확인할 수 있는 것
-
-- **RBAC**: 데모 role 진입 시 `user-roles` 쿠키와 클라이언트 auth store가 함께 설정되어 기존 `middleware.ts` 보호 라우트를 통과합니다.
-- **API 호출 계층**: Page/Component -> hook/query/mutation -> domain API -> `apiClient`/`serverApiClient` -> `constants/api.ts` -> `/api/demo` Route Handler 흐름을 유지합니다. 컴포넌트가 mock 데이터를 직접 import하지 않습니다.
-- **Mock API**: 이력서, 채용공고, 인재 검색, 기업/관리자 주요 목록은 기존 endpoint path를 유지한 채 `/api/demo` 아래에서 응답합니다. 우측 하단 `Demo API Log` 패널에서 method/path/status를 확인할 수 있습니다.
-- **이력서 저장 흐름**: `/dashboard/profile/1`에서 기본 정보, 학력, 경력 등 섹션 저장과 마지막 profile status 전환을 기존 제출 흐름으로 확인합니다.
-- **인증 CTA 차단**: 로그인, 회원가입, 시작하기 CTA는 실제 인증 입력 화면이나 실제 인증 요청으로 이어지지 않고 서버 종료 안내 또는 `/demo`로 유도됩니다.
-
-### 저장과 초기화 정책
-
-데모는 외부 DB, Firebase, Supabase, 실제 운영 서버 저장소를 사용하지 않습니다.
-
-- demo accessToken은 실제 토큰이 아닌 `demo-access-token-*` 형식의 클라이언트 식별값입니다.
-- 데모 인증 상태, API 로그, 이력서 mock 상태는 브라우저 `localStorage`와 `sessionStorage`에만 남습니다.
-- Route Handler mock store는 서버 프로세스 메모리에만 존재하므로 배포 환경이나 새 프로세스에서는 유지가 보장되지 않습니다.
-- `/demo`의 `데모 데이터 초기화` 버튼은 demo auth 쿠키, `auth-store`, `lion-connect-demo-api-log`, `lion-connect-demo-resume-store`, `lion-connect-demo-guide-seen`을 정리합니다.
-- 브라우저 DevTools에서 위 storage key를 삭제하거나 `.env.local`을 다시 생성해도 같은 초기 상태로 검토할 수 있습니다.
-
-### 데모 이미지와 자산 정책
-
-새 외부 인물 사진, 실제 기업 로고, 출처 불명 이미지는 추가하지 않습니다. 필요 시 아래 경로에 placeholder만 두고 README 또는 PR 본문에 출처와 용도를 남깁니다.
-
-| 선택 경로 | 권장 사이즈 | 용도 |
-| --- | --- | --- |
-| `public/demo/assets/talent-avatar.png` | 512x512 PNG | 인재 프로필 placeholder |
-| `public/demo/assets/company-logo.png` | 512x512 PNG 또는 2:1 PNG | 기업 로고 placeholder |
-| `public/demo/loading.gif` | 320x180 GIF 이하 | 데모 로딩 placeholder |
-
-현재 T10 문서 작업에서는 새 이미지 파일을 추가하지 않습니다. 화면은 기존 public 자산과 initials/icon 기반 placeholder를 우선 사용합니다.
-
-### 검증 명령
-
-```bash
-npm run lint
-npm run type-check
-npm run test
-npm run build
-```
-
-T10 문서/환경 예시 변경의 선행 검증은 `sed -n '1,260p' README.md`, `find . -maxdepth 2 -name '.env*' -print`, `find public -maxdepth 3 -type f | sort`로 수행했습니다.
+이 저장소는 운영 서버가 종료된 LionConnect MVP를 포트폴리오 검토용으로 보존한 아카이브입니다. Next.js Route Handler 기반 Mock API로 핵심 화면 흐름을 확인할 수 있습니다.
 
 <img width="100%" alt="Lion Connect" src="https://github.com/user-attachments/assets/2a2648d7-cbc9-4e2b-afc9-9b729aa9c105" />
 
