@@ -88,6 +88,8 @@ export function useCreateJobPosting() {
     onSuccess: (newJob) => {
       // 생성 후 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
+      // 인재 랜딩(공개 공고 목록)도 즉시 반영되도록 무효화
+      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
       // 생성된 데이터를 캐시에 저장
       queryClient.setQueryData(["jobPosting", newJob.jobPostingId], newJob);
     },
@@ -106,6 +108,9 @@ export function useUpdateJobPosting(jobId: string) {
       // 수정 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
+      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
+      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId] });
       // 업데이트된 데이터를 캐시에 저장
       queryClient.setQueryData(["jobPosting", updatedJob.jobPostingId], updatedJob);
     },
@@ -124,8 +129,12 @@ export function useDeleteJobPosting(jobId: string) {
       // 삭제 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
+      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
+      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId] });
       // 캐시에서 삭제
       queryClient.removeQueries({ queryKey: ["jobPosting", jobId] });
+      queryClient.removeQueries({ queryKey: ["publicJobPosting", jobId] });
     },
   });
 }
@@ -142,6 +151,9 @@ export function usePublishJobPosting(jobId: number) {
       // 게시 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId.toString()] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
+      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
+      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId.toString()] });
     },
   });
 }
@@ -158,6 +170,9 @@ export function useUnpublishJobPosting(jobId: number) {
       // 게시 취소 후 해당 쿼리와 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["jobPosting", jobId.toString()] });
       queryClient.invalidateQueries({ queryKey: ["jobPostings"] });
+      // 인재 랜딩(공개 공고 목록/상세)도 즉시 반영되도록 무효화
+      queryClient.invalidateQueries({ queryKey: ["publicJobPostings"] });
+      queryClient.invalidateQueries({ queryKey: ["publicJobPosting", jobId.toString()] });
     },
   });
 }
