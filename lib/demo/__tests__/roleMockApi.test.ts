@@ -158,6 +158,45 @@ describe("demo role page mock API", () => {
     );
   });
 
+  it("인재 랜딩 공개 공고는 게시중만 노출하고 게시/취소가 반영된다", async () => {
+    // 시드: 게시중 2개(9001, 9002), 게시 대기 1개(9003)
+    const initial = await callDemoApi("GET", "/job-postings?page=0&size=12");
+    const initialIds = initial.body.content.map(
+      (job: { jobPostingId: number }) => job.jobPostingId
+    );
+    expect(initial.body.totalElements).toBe(2);
+    expect(initialIds).toEqual(expect.arrayContaining([9001, 9002]));
+    expect(initialIds).not.toContain(9003);
+
+    // 게시 대기 공고(9003)를 게시하면 랜딩에 노출된다
+    const published = await callDemoApi("PATCH", "/company/job-postings/9003/publish");
+    const afterPublish = await callDemoApi("GET", "/job-postings?page=0&size=12");
+    expect(published.status).toBe(200);
+    expect(afterPublish.body.totalElements).toBe(3);
+    expect(
+      afterPublish.body.content.map((job: { jobPostingId: number }) => job.jobPostingId)
+    ).toContain(9003);
+
+    // 게시중 공고(9001)를 내리면 랜딩에서 제거된다
+    const unpublished = await callDemoApi("PATCH", "/company/job-postings/9001/unpublish");
+    const afterUnpublish = await callDemoApi("GET", "/job-postings?page=0&size=12");
+    expect(unpublished.status).toBe(200);
+    expect(
+      afterUnpublish.body.content.map((job: { jobPostingId: number }) => job.jobPostingId)
+    ).not.toContain(9001);
+
+    // 기업 관리 목록은 게시 여부와 무관하게 전체 3개를 보여준다
+    const companyJobs = await callDemoApi("GET", "/company/job-postings/me?page=0&size=10");
+    expect(companyJobs.body.totalElements).toBe(3);
+  });
+
+  it("관리자 채용공고 목록은 게시 대기 공고도 포함한다", async () => {
+    const adminJobs = await callDemoApi("GET", "/admin/job-postings?status=&page=0&size=12");
+    const ids = adminJobs.body.content.map((job: { jobPostingId: number }) => job.jobPostingId);
+    expect(adminJobs.body.totalElements).toBe(3);
+    expect(ids).toEqual(expect.arrayContaining([9001, 9002, 9003]));
+  });
+
   it("기업용 인재 검색/상세와 채용공고/지원자 목록을 mock한다", async () => {
     const talents = await callDemoApi("GET", "/profiles/search?page=0&size=20");
     const talentDetail = await callDemoApi("GET", "/profiles/1");

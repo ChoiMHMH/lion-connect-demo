@@ -221,6 +221,13 @@ function toPublicJobPostingResponse(
 }
 
 export function listDemoPublicJobPostings(searchParams: URLSearchParams) {
+  // 인재 랜딩에는 게시중(PUBLISHED) 공고만 노출한다.
+  const publishedJobs = store.jobs.filter((job) => getJobStatus(job.jobPostingId) === "PUBLISHED");
+  return toPublicJobPostingResponse(searchParams, publishedJobs);
+}
+
+export function listDemoAdminJobPostings(searchParams: URLSearchParams) {
+  // 관리자는 게시 여부와 무관하게 전체 공고를 조회한다.
   return toPublicJobPostingResponse(searchParams);
 }
 

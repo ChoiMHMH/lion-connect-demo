@@ -53,6 +53,7 @@ import {
   getDemoPublicJobPosting,
   getDemoTalent,
   listDemoAdminCompanies,
+  listDemoAdminJobPostings,
   listDemoAdminUsers,
   listDemoApplicants,
   listDemoApplications,
@@ -577,7 +578,7 @@ async function handleRolePageRoutes(context: DemoHandlerContext) {
   }
 
   if (path === "/admin/job-postings" && method === "GET") {
-    return jsonResponse(listDemoPublicJobPostings(searchParams));
+    return jsonResponse(listDemoAdminJobPostings(searchParams));
   }
 
   if (
