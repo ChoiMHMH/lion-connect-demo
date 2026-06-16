@@ -53,3 +53,4 @@ notes/
 
 # refactor 내부 계획 (결과 요약은 README/docs 로 공개)
 .refactor/
+/docs/분석
