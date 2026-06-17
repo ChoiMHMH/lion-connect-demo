@@ -59,13 +59,13 @@
 
 ## 완료 기준 (DoD)
 
-- [ ] `withQuery` 유틸 + 단위 테스트(undefined 생략/배열 반복/빈 배열 처리) 통과
-- [ ] 5개 도메인 파일이 `withQuery` 사용, 생성되는 query string이 변경 전과 동일
-- [ ] `parseResponse` 추출, 정상·재시도 경로 공유, 204/빈 응답/JSON 파싱 테스트 통과
-- [ ] `apiRawRequest` 추가 + 테스트(헤더 접근 가능, timeout/네트워크 에러가 `ApiError`로 변환)
-- [ ] `refreshAccessToken`·`loginAPI`가 `apiRawRequest` 사용, `loginAPI` 실패 시 `ApiError`
-- [ ] `npm run type-check`, `npm run lint`, `npm run test` 녹색
-- [ ] `docs/분석/`에 전/후 설명 문서 작성
-- [ ] 포폴 발표용 회고 슬라이드 초안 작성(Before 1장 + 회고 1장)
+- [x] `withQuery` 유틸 + 단위 테스트(undefined 생략/배열 반복/빈 배열 처리) 통과
+- [x] 5개 도메인 파일이 `withQuery` 사용, 생성되는 query string이 변경 전과 동일
+- [x] `parseResponse` 추출, 정상·재시도 경로 공유, 204/빈 응답/JSON 파싱 테스트 통과
+- [x] `apiRawRequest` 추가 + 테스트(헤더 접근 가능, timeout/네트워크 에러가 `ApiError`로 변환)
+- [x] `refreshAccessToken`·`loginAPI`가 `apiRawRequest` 사용, `loginAPI` 실패 시 `ApiError`
+- [x] `npm run type-check`, `npm run lint`, `npm run test` 녹색 (239 tests)
+- [x] `docs/분석/`에 전/후 설명 문서 작성
+- [x] 포폴 발표용 회고 슬라이드 초안 작성(Before 1장 + 회고 1장)
 - [ ] `.agents/evaluation.md` Stage 1/2 통과
 ```
