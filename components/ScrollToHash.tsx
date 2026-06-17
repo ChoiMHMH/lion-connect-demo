@@ -14,13 +14,18 @@ import {
  */
 export default function ScrollToHash() {
   useEffect(() => {
+    let cleanupBusinessConnectScroll: (() => void) | undefined;
+    let scrollDelayTimeoutId: number | undefined;
+
     // 페이지 로드 시 해시가 있으면 해당 섹션으로 스크롤
     const hash = window.location.hash;
     if (hash) {
       // 약간의 지연을 주어 페이지가 완전히 로드된 후 스크롤
-      setTimeout(() => {
+      scrollDelayTimeoutId = window.setTimeout(() => {
         if (hash === BUSINESS_CONNECT_HASH) {
-          scrollToBusinessConnectWhenReady({ behavior: SCROLL_BEHAVIOR });
+          cleanupBusinessConnectScroll = scrollToBusinessConnectWhenReady({
+            behavior: SCROLL_BEHAVIOR,
+          });
           return;
         }
 
@@ -33,6 +38,13 @@ export default function ScrollToHash() {
         }
       }, SCROLL_DELAY_MS);
     }
+
+    return () => {
+      if (scrollDelayTimeoutId !== undefined) {
+        window.clearTimeout(scrollDelayTimeoutId);
+      }
+      cleanupBusinessConnectScroll?.();
+    };
   }, []);
 
   return null;

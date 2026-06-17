@@ -50,6 +50,7 @@ CLAUDE.local.md
 
 # personal notes
 notes/
+docs/분석/
 
 # refactor 내부 계획 (결과 요약은 README/docs 로 공개)
 .refactor/

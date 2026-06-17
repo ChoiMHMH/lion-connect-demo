@@ -51,7 +51,7 @@ export default function Home() {
         </div>
       </article>
 
-      <div className="pt-60 pb-[127px]">
+      <div data-business-connect-root className="pt-60 pb-[127px]">
         <BusinessConnect />
       </div>
     </main>
