@@ -2,6 +2,7 @@
 
 import { get } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/constants/api";
+import { withQuery } from "@/lib/http/query";
 
 // 🔹 education 객체 타입 분리
 export type TalentEducation = {
@@ -77,22 +78,13 @@ export async function fetchTalents({
   jobRoleId,
   keyword,
 }: FetchTalentsParams = {}): Promise<TalentListResponse> {
-  const params = new URLSearchParams();
-
-  params.set("page", String(page));
-  params.set("size", String(size));
-
-  if (jobGroupId !== undefined) {
-    params.set("jobGroupId", String(jobGroupId));
-  }
-  if (jobRoleId !== undefined) {
-    params.set("jobRoleId", String(jobRoleId));
-  }
-  if (keyword && keyword.trim()) {
-    params.set("keyword", keyword.trim());
-  }
-
-  const url = `${API_ENDPOINTS.TALENTS.SEARCH}?${params.toString()}`;
+  const url = withQuery(API_ENDPOINTS.TALENTS.SEARCH, {
+    page,
+    size,
+    jobGroupId,
+    jobRoleId,
+    keyword: keyword?.trim() || undefined,
+  });
 
   return get<TalentListResponse>(url, {
     credentials: "include", // 쿠키 포함

@@ -107,6 +107,45 @@ async function fetchWithTimeout(url: string, options: RequestOptions = {}): Prom
 }
 
 /**
+ * raw Response가 필요한 요청을 위한 공통 래퍼
+ * - base URL resolution, timeout, 네트워크/타임아웃 ApiError 변환은 공유한다.
+ * - 응답 본문은 파싱하지 않고 raw Response를 그대로 반환한다(헤더 접근 등).
+ * - 로그인/리프레시처럼 Authorization 응답 헤더를 읽어야 하는 경로에서 사용한다.
+ * - demo 로컬 디스패치는 거치지 않는다(login/refresh는 항상 실제 백엔드 대상).
+ */
+export async function apiRawRequest(
+  endpoint: string,
+  options: RequestOptions = {}
+): Promise<Response> {
+  const { url } = resolveApiRequestUrl(endpoint);
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (!options.skipAuth) {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+  }
+
+  if (options.headers) {
+    Object.entries(options.headers).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        headers[key] = value;
+      }
+    });
+  }
+
+  return fetchWithTimeout(url, {
+    ...options,
+    headers,
+    credentials: options.skipCredentials ? "omit" : "include",
+  });
+}
+
+/**
  * HTTP 응답 에러 처리
  */
 async function handleResponseError(response: Response): Promise<never> {
@@ -160,6 +199,44 @@ async function handleResponseError(response: Response): Promise<never> {
 }
 
 /**
+ * 응답 본문 파싱
+ * - 204 / 빈 본문 / 비 JSON / 깨진 JSON을 모두 안전하게 빈 객체로 처리
+ * - 정상 경로와 401 재시도 경로가 동일한 규칙을 공유한다.
+ */
+export async function parseResponse<T>(response: Response): Promise<T> {
+  // 204 No Content 처리
+  if (response.status === HTTP_STATUS.NO_CONTENT) {
+    return {} as T;
+  }
+
+  // Content-Type 확인 및 빈 응답 처리
+  const contentType = response.headers.get("content-type");
+  const contentLength = response.headers.get("content-length");
+
+  // Content-Length가 0이거나 Content-Type이 JSON이 아닌 경우
+  if (contentLength === "0" || !contentType?.includes("application/json")) {
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return {} as T;
+    }
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return {} as T;
+    }
+  }
+
+  // JSON 응답 파싱
+  try {
+    const data = await response.json();
+    return data as T;
+  } catch {
+    console.warn("Failed to parse JSON response, returning empty object");
+    return {} as T;
+  }
+}
+
+/**
  * 토큰 리프레시 함수
  * - Authorization 헤더 우선, 없으면 응답 body에서 추출
  * - 앱 초기화(useInitializeAuth)와 401 자동 재시도에서 모두 사용
@@ -175,9 +252,9 @@ export async function refreshAccessToken(): Promise<string> {
   // 새로운 리프레시 Promise 생성
   refreshPromise = (async () => {
     try {
-      const response = await fetch(resolveApiRequestUrl(API_ENDPOINTS.AUTH.REFRESH_TOKEN).url, {
+      const response = await apiRawRequest(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
         method: "POST",
-        credentials: "include", // 리프레시 토큰 쿠키 포함
+        skipAuth: true, // 리프레시는 액세스 토큰이 아닌 쿠키 기반
       });
 
       if (!response.ok) {
@@ -313,33 +390,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
           await handleResponseError(retryResponse);
         }
 
-        // 204 No Content 처리
-        if (retryResponse.status === HTTP_STATUS.NO_CONTENT) {
-          return {} as T;
-        }
-
-        // 빈 응답 처리
-        const retryContentType = retryResponse.headers.get("content-type");
-        const retryContentLength = retryResponse.headers.get("content-length");
-
-        if (retryContentLength === "0" || !retryContentType?.includes("application/json")) {
-          const text = await retryResponse.text();
-          if (!text || text.trim() === "") {
-            return {} as T;
-          }
-          try {
-            return JSON.parse(text) as T;
-          } catch {
-            return {} as T;
-          }
-        }
-
-        try {
-          const data = await retryResponse.json();
-          return data as T;
-        } catch {
-          return {} as T;
-        }
+        return parseResponse<T>(retryResponse);
       } catch (refreshError) {
         // 리프레시 실패 시 에러 전파 (clearAuth는 refreshAccessToken 내부에서 처리)
         throw refreshError;
@@ -351,39 +402,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       await handleResponseError(response);
     }
 
-    // 204 No Content 처리
-    if (response.status === HTTP_STATUS.NO_CONTENT) {
-      return {} as T;
-    }
-
-    // Content-Type 확인 및 빈 응답 처리
-    const contentType = response.headers.get("content-type");
-    const contentLength = response.headers.get("content-length");
-
-    // Content-Length가 0이거나 Content-Type이 JSON이 아닌 경우
-    if (contentLength === "0" || !contentType?.includes("application/json")) {
-      // 빈 응답이면 빈 객체 반환
-      const text = await response.text();
-      if (!text || text.trim() === "") {
-        return {} as T;
-      }
-      // 텍스트가 있으면 JSON 파싱 시도
-      try {
-        return JSON.parse(text) as T;
-      } catch {
-        return {} as T;
-      }
-    }
-
-    // JSON 응답 파싱
-    try {
-      const data = await response.json();
-      return data as T;
-    } catch {
-      // JSON 파싱 실패 시 빈 객체 반환 (빈 응답인 경우)
-      console.warn("Failed to parse JSON response, returning empty object");
-      return {} as T;
-    }
+    return parseResponse<T>(response);
   } catch (error) {
     if (isDemoRequest && !recordedDemoResponse) {
       recordDemoApiLog({

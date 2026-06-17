@@ -16,8 +16,8 @@ import {
   CompanySignupRequestData,
   CompanySignupResponse,
 } from "@/types/auth";
-import { post, refreshAccessToken } from "@/lib/apiClient";
-import { API_ENDPOINTS, API_BASE_URL } from "@/constants/api";
+import { post, refreshAccessToken, apiRawRequest, ApiError } from "@/lib/apiClient";
+import { API_ENDPOINTS } from "@/constants/api";
 
 /**
  * 로그인 API 호출
@@ -30,13 +30,11 @@ import { API_ENDPOINTS, API_BASE_URL } from "@/constants/api";
  * - 리프레시 토큰: 백엔드에서 HttpOnly 쿠키로 자동 설정
  */
 export async function loginAPI(data: LoginFormData): Promise<LoginResponse> {
-  // 백엔드 직접 호출 (fetch 사용 - Response 헤더 접근 필요)
-  const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
+  // raw Response가 필요(Authorization 응답 헤더 접근)하므로 apiRawRequest 사용.
+  // base URL / timeout / 네트워크 에러 변환은 공통 클라이언트 정책을 공유한다.
+  const response = await apiRawRequest(API_ENDPOINTS.AUTH.LOGIN, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // 리프레시 토큰 쿠키 받기 위해
+    skipAuth: true, // 로그인은 액세스 토큰 없이 호출
     body: JSON.stringify({
       email: data.email,
       password: data.password,
@@ -45,7 +43,11 @@ export async function loginAPI(data: LoginFormData): Promise<LoginResponse> {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "로그인에 실패했습니다");
+    throw new ApiError(
+      errorData.message || "로그인에 실패했습니다",
+      response.status,
+      errorData.code
+    );
   }
 
   // Authorization 헤더에서 액세스 토큰 추출
@@ -53,7 +55,7 @@ export async function loginAPI(data: LoginFormData): Promise<LoginResponse> {
   const accessToken = authHeader?.replace("Bearer ", "") || "";
 
   if (!accessToken) {
-    throw new Error("액세스 토큰을 받지 못했습니다");
+    throw new ApiError("액세스 토큰을 받지 못했습니다", response.status, "NO_ACCESS_TOKEN");
   }
 
   // 응답 바디 파싱
@@ -61,7 +63,7 @@ export async function loginAPI(data: LoginFormData): Promise<LoginResponse> {
 
   // 사용자 정보 검증
   if (!responseData.user) {
-    throw new Error("사용자 정보를 받지 못했습니다");
+    throw new ApiError("사용자 정보를 받지 못했습니다", response.status, "NO_USER");
   }
 
   // 액세스 토큰을 포함한 응답 반환
