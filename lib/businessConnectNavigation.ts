@@ -1,9 +1,10 @@
 export const BUSINESS_CONNECT_ID = "business-connect";
 export const BUSINESS_CONNECT_HASH = `#${BUSINESS_CONNECT_ID}`;
 export const BUSINESS_CONNECT_HREF = `/${BUSINESS_CONNECT_HASH}`;
+export const BUSINESS_CONNECT_ROOT_ATTRIBUTE = "data-business-connect-root";
+export const BUSINESS_CONNECT_ROOT_SELECTOR = `[${BUSINESS_CONNECT_ROOT_ATTRIBUTE}]`;
 export const BUSINESS_CONNECT_SCROLL_OFFSET = 120;
-export const BUSINESS_CONNECT_SCROLL_RETRY_DELAY_MS = 80;
-export const BUSINESS_CONNECT_SCROLL_MAX_ATTEMPTS = 20;
+export const BUSINESS_CONNECT_SCROLL_TIMEOUT_MS = 1600;
 
 type ScrollToBusinessConnectOptions = {
   behavior?: ScrollBehavior;
@@ -12,8 +13,7 @@ type ScrollToBusinessConnectOptions = {
 };
 
 type ScrollWhenReadyOptions = ScrollToBusinessConnectOptions & {
-  maxAttempts?: number;
-  retryDelayMs?: number;
+  timeoutMs?: number;
 };
 
 export function getBusinessConnectScrollTop(
@@ -46,22 +46,35 @@ export function scrollToBusinessConnect({
 }
 
 export function scrollToBusinessConnectWhenReady({
-  maxAttempts = BUSINESS_CONNECT_SCROLL_MAX_ATTEMPTS,
-  retryDelayMs = BUSINESS_CONNECT_SCROLL_RETRY_DELAY_MS,
+  timeoutMs = BUSINESS_CONNECT_SCROLL_TIMEOUT_MS,
   ...scrollOptions
 }: ScrollWhenReadyOptions = {}) {
-  let attempts = 0;
+  if (scrollToBusinessConnect(scrollOptions)) return () => {};
 
-  const tryScroll = () => {
-    if (scrollToBusinessConnect(scrollOptions)) return;
+  const root = document.querySelector(BUSINESS_CONNECT_ROOT_SELECTOR) ?? document.body;
+  if (!root) return () => {};
 
-    attempts += 1;
-    if (attempts < maxAttempts) {
-      window.setTimeout(tryScroll, retryDelayMs);
+  let isCleanedUp = false;
+
+  const observer = new window.MutationObserver(() => {
+    if (scrollToBusinessConnect(scrollOptions)) {
+      cleanup();
     }
+  });
+
+  const cleanup = () => {
+    if (isCleanedUp) return;
+
+    isCleanedUp = true;
+    observer.disconnect();
+    window.clearTimeout(timeoutId);
   };
 
-  tryScroll();
+  const timeoutId = window.setTimeout(cleanup, timeoutMs);
+
+  observer.observe(root, { childList: true, subtree: true });
+
+  return cleanup;
 }
 
 export function clearBusinessConnectHash(onHashChange?: (hash: string) => void) {
