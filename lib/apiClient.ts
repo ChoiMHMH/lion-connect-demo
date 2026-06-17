@@ -107,6 +107,45 @@ async function fetchWithTimeout(url: string, options: RequestOptions = {}): Prom
 }
 
 /**
+ * raw Response가 필요한 요청을 위한 공통 래퍼
+ * - base URL resolution, timeout, 네트워크/타임아웃 ApiError 변환은 공유한다.
+ * - 응답 본문은 파싱하지 않고 raw Response를 그대로 반환한다(헤더 접근 등).
+ * - 로그인/리프레시처럼 Authorization 응답 헤더를 읽어야 하는 경로에서 사용한다.
+ * - demo 로컬 디스패치는 거치지 않는다(login/refresh는 항상 실제 백엔드 대상).
+ */
+export async function apiRawRequest(
+  endpoint: string,
+  options: RequestOptions = {}
+): Promise<Response> {
+  const { url } = resolveApiRequestUrl(endpoint);
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (!options.skipAuth) {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+  }
+
+  if (options.headers) {
+    Object.entries(options.headers).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        headers[key] = value;
+      }
+    });
+  }
+
+  return fetchWithTimeout(url, {
+    ...options,
+    headers,
+    credentials: options.skipCredentials ? "omit" : "include",
+  });
+}
+
+/**
  * HTTP 응답 에러 처리
  */
 async function handleResponseError(response: Response): Promise<never> {
