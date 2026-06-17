@@ -252,9 +252,9 @@ export async function refreshAccessToken(): Promise<string> {
   // 새로운 리프레시 Promise 생성
   refreshPromise = (async () => {
     try {
-      const response = await fetch(resolveApiRequestUrl(API_ENDPOINTS.AUTH.REFRESH_TOKEN).url, {
+      const response = await apiRawRequest(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
         method: "POST",
-        credentials: "include", // 리프레시 토큰 쿠키 포함
+        skipAuth: true, // 리프레시는 액세스 토큰이 아닌 쿠키 기반
       });
 
       if (!response.ok) {
