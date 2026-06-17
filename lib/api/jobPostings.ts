@@ -1,6 +1,7 @@
 // lib/api/jobPostings.ts
 import { post, get, put, del } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/constants/api";
+import { withQuery } from "@/lib/http/query";
 import type {
   Job,
   JobFormData,
@@ -191,25 +192,13 @@ export function fetchJobPostings(): Promise<Job[]> {
 export function fetchPublicJobPostings(
   params: PublicJobPostingsParams
 ): Promise<PublicJobPostingsResponse> {
-  const queryParams = new URLSearchParams();
-
-  if (params.jobGroupCode) {
-    queryParams.append("jobGroupCode", params.jobGroupCode);
-  }
-  if (params.jobRoleCode) {
-    queryParams.append("jobRoleCode", params.jobRoleCode);
-  }
-  if (params.page !== undefined) {
-    queryParams.append("page", params.page.toString());
-  }
-  if (params.size !== undefined) {
-    queryParams.append("size", params.size.toString());
-  }
-  if (params.sort && params.sort.length > 0) {
-    params.sort.forEach((s) => queryParams.append("sort", s));
-  }
-
-  const endpoint = `${API_ENDPOINTS.JOB_POSTINGS.LIST}?${queryParams.toString()}`;
+  const endpoint = withQuery(API_ENDPOINTS.JOB_POSTINGS.LIST, {
+    jobGroupCode: params.jobGroupCode || undefined,
+    jobRoleCode: params.jobRoleCode || undefined,
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+  });
   return get<PublicJobPostingsResponse>(endpoint);
 }
 
@@ -220,16 +209,11 @@ export function fetchJobApplicants(
   jobId: string,
   params: JobApplicationsRequest
 ): Promise<CompanyApplicantsResponse> {
-  const queryParams = new URLSearchParams();
-
-  queryParams.append("page", params.page.toString());
-  queryParams.append("size", params.size.toString());
-
-  if (params.sort && params.sort.length > 0) {
-    params.sort.forEach((s) => queryParams.append("sort", s));
-  }
-
-  const endpoint = `${API_ENDPOINTS.COMPANY_JOB_POSTINGS.APPLICATIONS(jobId)}?${queryParams.toString()}`;
+  const endpoint = withQuery(API_ENDPOINTS.COMPANY_JOB_POSTINGS.APPLICATIONS(jobId), {
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+  });
   return get<CompanyApplicantsResponse>(endpoint);
 }
 
@@ -239,28 +223,15 @@ export function fetchJobApplicants(
 export function fetchAdminJobPostings(
   params: PublicJobPostingsParams
 ): Promise<PublicJobPostingsResponse> {
-  const queryParams = new URLSearchParams();
-
-  // status는 빈 값으로 설정
-  queryParams.append("status", "");
-
-  if (params.jobGroupCode) {
-    queryParams.append("jobGroupCode", params.jobGroupCode);
-  }
-  if (params.jobRoleCode) {
-    queryParams.append("jobRoleCode", params.jobRoleCode);
-  }
-  if (params.page !== undefined) {
-    queryParams.append("page", params.page.toString());
-  }
-  if (params.size !== undefined) {
-    queryParams.append("size", params.size.toString());
-  }
-  if (params.sort && params.sort.length > 0) {
-    params.sort.forEach((s) => queryParams.append("sort", s));
-  }
-
-  const endpoint = `${API_ENDPOINTS.ADMIN.JOB_POSTINGS.LIST}?${queryParams.toString()}`;
+  const endpoint = withQuery(API_ENDPOINTS.ADMIN.JOB_POSTINGS.LIST, {
+    // status는 빈 값으로 전송 (전체 상태 조회)
+    status: "",
+    jobGroupCode: params.jobGroupCode || undefined,
+    jobRoleCode: params.jobRoleCode || undefined,
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+  });
   return get<PublicJobPostingsResponse>(endpoint);
 }
 
@@ -271,15 +242,10 @@ export function fetchAdminJobApplicants(
   jobId: string,
   params: JobApplicationsRequest
 ): Promise<CompanyApplicantsResponse> {
-  const queryParams = new URLSearchParams();
-
-  queryParams.append("page", params.page.toString());
-  queryParams.append("size", params.size.toString());
-
-  if (params.sort && params.sort.length > 0) {
-    params.sort.forEach((s) => queryParams.append("sort", s));
-  }
-
-  const endpoint = `${API_ENDPOINTS.ADMIN.JOB_POSTINGS.APPLICATIONS(jobId)}?${queryParams.toString()}`;
+  const endpoint = withQuery(API_ENDPOINTS.ADMIN.JOB_POSTINGS.APPLICATIONS(jobId), {
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+  });
   return get<CompanyApplicantsResponse>(endpoint);
 }

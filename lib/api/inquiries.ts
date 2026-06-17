@@ -4,6 +4,7 @@
 
 import { get, patch, post } from "@/lib/apiClient";
 import { API_ENDPOINTS } from "@/constants/api";
+import { withQuery } from "@/lib/http/query";
 import type {
   InquiryListParams,
   InquiryListResponse,
@@ -21,38 +22,16 @@ import type {
 export async function getAdminInquiries(
   params: InquiryListParams = {}
 ): Promise<InquiryListResponse> {
-  const searchParams = new URLSearchParams();
-
-  // 파라미터 구성
-  if (params.status) {
-    searchParams.append("status", params.status);
-  }
-  if (params.profileId !== undefined) {
-    searchParams.append("profileId", String(params.profileId));
-  }
-  if (params.profileName) {
-    searchParams.append("profileName", params.profileName);
-  }
-  if (params.receivedFrom) {
-    searchParams.append("receivedFrom", params.receivedFrom);
-  }
-  if (params.receivedTo) {
-    searchParams.append("receivedTo", params.receivedTo);
-  }
-  if (params.page !== undefined) {
-    searchParams.append("page", String(params.page));
-  }
-  if (params.size !== undefined) {
-    searchParams.append("size", String(params.size));
-  }
-  if (params.sort && params.sort.length > 0) {
-    params.sort.forEach((sortParam) => {
-      searchParams.append("sort", sortParam);
-    });
-  }
-
-  const queryString = searchParams.toString();
-  const endpoint = `${API_ENDPOINTS.ADMIN.INQUIRIES.LIST}${queryString ? `?${queryString}` : ""}`;
+  const endpoint = withQuery(API_ENDPOINTS.ADMIN.INQUIRIES.LIST, {
+    status: params.status || undefined,
+    profileId: params.profileId,
+    profileName: params.profileName || undefined,
+    receivedFrom: params.receivedFrom || undefined,
+    receivedTo: params.receivedTo || undefined,
+    page: params.page,
+    size: params.size,
+    sort: params.sort,
+  });
 
   return get<InquiryListResponse>(endpoint);
 }

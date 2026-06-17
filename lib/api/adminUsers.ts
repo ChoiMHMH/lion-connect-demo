@@ -2,6 +2,7 @@
 
 import { API_ENDPOINTS } from "@/constants/api";
 import { get, post, del } from "@/lib/apiClient";
+import { withQuery } from "@/lib/http/query";
 import { AdminUsersResponse, AdminCompaniesResponse, ProfileLockResponse } from "@/types/admin";
 
 /**
@@ -20,12 +21,7 @@ export async function fetchAdminUsers({
   page = 0,
   size = 20,
 }: FetchAdminUsersParams = {}): Promise<AdminUsersResponse> {
-  const params = new URLSearchParams();
-
-  params.set("page", String(page));
-  params.set("size", String(size));
-
-  const url = `${API_ENDPOINTS.ADMIN.USERS.LIST}?${params.toString()}`;
+  const url = withQuery(API_ENDPOINTS.ADMIN.USERS.LIST, { page, size });
 
   return get<AdminUsersResponse>(url);
 }
@@ -82,15 +78,11 @@ export async function fetchAdminCompanies({
   size = 20,
   sort,
 }: FetchAdminCompaniesParams = {}): Promise<AdminCompaniesResponse> {
-  const params = new URLSearchParams();
-
-  params.set("page", String(page));
-  params.set("size", String(size));
-  if (sort) {
-    params.set("sort", sort);
-  }
-
-  const url = `${API_ENDPOINTS.ADMIN.COMPANIES.LIST}?${params.toString()}`;
+  const url = withQuery(API_ENDPOINTS.ADMIN.COMPANIES.LIST, {
+    page,
+    size,
+    sort: sort || undefined,
+  });
 
   return get<AdminCompaniesResponse>(url);
 }
